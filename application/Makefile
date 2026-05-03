@@ -10,11 +10,11 @@
 Print = @echo "~"
 
 # Name of build target ex: ak-base-kit-stm32l151-application.bin
-NAME_MODULE = ak-base-kit-stm32l151-application
+NAME_MODULE = archery-game-application
 PROJECT = $(NAME_MODULE)
 
 GCC_PATH			= $(HOME)/Workspace/Tools/gcc-arm-none-eabi-10.3-2021.10
-PROGRAMER_PATH		= $(HOME)/Workspace/Tools/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin
+PROGRAMER_PATH		= $(HOME)/Workspace/Tools/STM32CubeProgrammer/bin
 OPENOCD_CFG_PATH	= /usr/local/share/openocd/scripts/board/stm32ldiscovery.cfg
 
 # App start address, that need sync with declare in linker file and interrupt vector table.
@@ -102,7 +102,15 @@ CPU = -mthumb -march=armv7-m
 FPU = -mfloat-abi=soft
 
 # Interface option
-IF_OPTION +=	$(IF_LINK_OPTION)		\
+IF_OPTION +=	$(IF_LINK_OPTION)
+
+# Hardware option
+#Ver 2.1 (Oled 1.3" driver SH1106)
+#Ver 3.0 (Oled 1.54" driver SSD1309)
+
+HARDWARE_OPTION += \
+		-DSSD1309_DRIVER_EN
+#		-USH1106_DRIVER_EN
 
 # Console log compile option
 CONSOLE_OPTION +=			\
@@ -124,6 +132,7 @@ GENERAL_FLAGS +=			\
 		$(APP_ADDR_OPTION)	\
 		$(USB_OPTION)		\
 		$(IF_OPTION)		\
+		$(HARDWARE_OPTION)  \
 		-DUSE_STDPERIPH_DRIVER	\
 		-DSTM32L1XX_MD		\
 		-DSTM32L_PLATFORM	\
@@ -193,7 +202,6 @@ help:
 	$(Print) "             Note: This option is needed install ak-flash. Link download & install: https://github.com/ak-embedded-software/ak-flash"
 	$(Print) "             Example: make flash dev=/dev/ttyUSB0"
 	$(Print) "[make flash] burn firmware via st-link"
-	$(Print) "[make factory] burn factory firmware via st-link"
 	$(Print) "[make com dev=/dev/tty*] console AK Embedded Base Kit"
 	$(Print) "[make debug gdb=ddd] gdb debug using ddd"
 	$(Print) "[make debug] gdb debug"
@@ -208,14 +216,6 @@ ifdef dev
 	ak-flash $(dev) $(TARGET:.axf=.bin) $(APP_START_ADDR_VAL)
 else
 	$(PROGRAMER_PATH)/STM32_Programmer.sh -c port=SWD -w $(TARGET:.axf=.bin) $(APP_START_ADDR_VAL) -rst
-endif
-
-.PHONY: factory
-factory:
-ifdef dev
-	ak-flash $(dev) ../resources/bin/ak-base-kit-stm32l151-application.bin $(APP_START_ADDR_VAL)
-else
-	$(PROGRAMER_PATH)/STM32_Programmer.sh -c port=SWD -w ../resources/bin/ak-base-kit-stm32l151-application.bin $(APP_START_ADDR_VAL) -rst
 endif
 
 .PHONY: com
