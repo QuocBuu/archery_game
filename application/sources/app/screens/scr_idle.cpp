@@ -6,6 +6,7 @@
 using namespace std;
 
 #define MAX_BALL_DISPLAY	(16)
+#define BALL_MOVE_STEP		(2)
 
 class ball {
 	// rand from a to b
@@ -19,8 +20,8 @@ public:
 		axis_y = 1;
 		slope = (rand() % (31)) - 15;
 		radius = (rand() % (7)) + 6;
-		x = rand() % (LCD_WIDTH - radius);
-		y = rand() % (LCD_HEIGHT - radius);
+		x = radius + (rand() % (LCD_WIDTH - 2 * radius));
+		y = radius + (rand() % (LCD_HEIGHT - 2 * radius));
 	}
 
 	int distance(ball& __ball) {
@@ -41,30 +42,34 @@ public:
 
 	void moving() {
 		if( axis_x > 0) {
-			x = x + 2;
+			x = x + BALL_MOVE_STEP;
 		}
 		else {
-			x = x - 2;
+			x = x - BALL_MOVE_STEP;
 		}
 
 		if (axis_y > 0) {
-			y += 2 * atan(slope);
+			y += BALL_MOVE_STEP * atan(slope);
 		}
 		else {
-			y -= 2 * atan(slope);
+			y -= BALL_MOVE_STEP * atan(slope);
 		}
 
-		if (x > (LCD_WIDTH - radius) || x < radius) {
+		if (x > ((LCD_WIDTH - 1) - radius) || x < radius) {
 			axis_x = -axis_x;
 			if (x < radius) {
 				x = radius;
+			} else if (x > ((LCD_WIDTH - 1) - radius)) {
+				x = (LCD_WIDTH - 1) - radius;
 			}
 		}
 
-		if (y > (LCD_HEIGHT - radius) || y < radius ) {
+		if (y > ((LCD_HEIGHT - 1) - radius) || y < radius ) {
 			axis_y = -axis_y;
 			if (y < radius) {
 				y = radius;
+			} else if (y > ((LCD_HEIGHT - 1) - radius)) {
+				y = (LCD_HEIGHT - 1) - radius;
 			}
 		}
 	}
