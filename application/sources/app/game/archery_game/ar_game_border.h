@@ -20,6 +20,11 @@
 #define AXIS_Y_BORDER_ON        (2)
 #define AXIS_Y_BORDER_UNDER     (52)
 
+enum {
+    AR_GAME_BORDER_ACTION_IMAGE_1 = 1,
+    AR_GAME_BORDER_ACTION_IMAGE_END
+};
+
 typedef struct {
     bool visible;
     uint32_t x, y;

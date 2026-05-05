@@ -23,21 +23,32 @@
 /******************************************************************************/
 /* Archey game */
 /******************************************************************************/
-typedef struct {
-  /* score data */
-  uint32_t score_now;
-  uint32_t score_1st;
-  uint32_t score_2nd;
-  uint32_t score_3rd;
-} ar_game_score_t;
+
+/* setting data */
+#define AR_GAME_SETTING_SILENT_OFF               (0)
+#define AR_GAME_SETTING_SILENT_ON                (1)
+#define AR_GAME_SETTING_NUM_ARROW_MIN            (1)
+#define AR_GAME_SETTING_NUM_ARROW_MAX            (9)
+#define AR_GAME_SETTING_NUM_ARROW_DEFAULT        (5)
+#define AR_GAME_SETTING_ARROW_SPEED_DEFAULT      (5)
+#define AR_GAME_SETTING_METEOROID_SPEED_MIN      (1)
+#define AR_GAME_SETTING_METEOROID_SPEED_MAX      (5)
+#define AR_GAME_SETTING_METEOROID_SPEED_DEFAULT  (1)
 
 typedef struct {
-  /* setting data */
   bool silent;
   uint8_t num_arrow;
   uint8_t arrow_speed;
   uint8_t meteoroid_speed;
 } ar_game_setting_t;
+
+/* score data */
+typedef struct {
+  uint32_t score_now;
+  uint32_t score_1st;
+  uint32_t score_2nd;
+  uint32_t score_3rd;
+} ar_game_score_t;
 
 #ifdef __cplusplus
 extern "C" {

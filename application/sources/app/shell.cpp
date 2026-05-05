@@ -357,7 +357,19 @@ int32_t shell_fatal(uint8_t* argv) {
 	}
 		break;
 
-	default:
+	default: {
+		LOGIN_PRINT("\n[HELP] fatal command options:\n");
+		LOGIN_PRINT("  t : test fatal log\n");
+		LOGIN_PRINT("  ! : infinite loop\n");
+		LOGIN_PRINT("  @ : infinite loop with interrupts disabled\n");
+		LOGIN_PRINT("  r : reset fatal log\n");
+		LOGIN_PRINT("  l : print fatal log\n");
+		LOGIN_PRINT("  m : print message log\n");
+		LOGIN_PRINT("  e : print exception log\n");
+		LOGIN_PRINT("  R : dump ram\n");
+		LOGIN_PRINT("  s : print stack usage\n");
+		LOGIN_PRINT("  c : print cpu register\n");
+	}
 		break;
 	}
 
@@ -410,7 +422,10 @@ int32_t shell_eps(uint8_t* argv) {
 		break;
 
 	default:
-		LOGIN_PRINT("unkown option !\n");
+		LOGIN_PRINT("\n[HELP] eps command options:\n");
+		LOGIN_PRINT("  r : erase whole eeprom\n");
+		LOGIN_PRINT("  d : dump eeprom with decimal format\n");
+		LOGIN_PRINT("  h : dump eeprom with hex format\n");
 		break;
 	}
 
@@ -483,7 +498,10 @@ int32_t shell_flash(uint8_t* argv) {
 		break;
 
 	default:
-		LOGIN_PRINT("unknow option\n");
+		LOGIN_PRINT("[HELP] flash command options:\n");
+		LOGIN_PRINT("  i : initialize flash\n");
+		LOGIN_PRINT("  d : dump flash with decimal format\n");
+		LOGIN_PRINT("  h : dump flash with hex format\n");
 		break;
 	}
 
@@ -563,7 +581,17 @@ int32_t shell_lcd(uint8_t* argv) {
 		break;
 
 	default:
-		LOGIN_PRINT("unknow option\n");
+		LOGIN_PRINT("[HELP] lcd command options:\n");
+		LOGIN_PRINT("  i : initialize lcd\n");
+		LOGIN_PRINT("  o : turn on lcd\n");
+		LOGIN_PRINT("  f : turn off lcd\n");
+		LOGIN_PRINT("  b : fill screen with black\n");
+		LOGIN_PRINT("  w : fill screen with white\n");
+		LOGIN_PRINT("  t : display ak logo\n");
+		LOGIN_PRINT("  r : clear screen\n");
+		LOGIN_PRINT("  a : print text with white color\n");
+		LOGIN_PRINT("  c : print text with black color\n");
+		LOGIN_PRINT("  p : draw pixels\n");
 		break;
 	}
 
@@ -599,6 +627,11 @@ int32_t shell_dbg(uint8_t* argv) {
 		break;
 
 	default: {
+		LOGIN_PRINT("\n[HELP] dbg command options:\n");
+		LOGIN_PRINT("  0 : no operation\n");
+		LOGIN_PRINT("  v : print battery voltage (vbat)\n");
+		LOGIN_PRINT("  t : print MCU temperature\n");
+		LOGIN_PRINT("  s : stop MCU\n");
 	}
 		break;
 	}
@@ -747,7 +780,13 @@ int32_t shell_ram(uint8_t* argv) {
 		break;
 
 	default: {
-		LOGIN_PRINT("unknown option\n");
+		/* help info */
+		LOGIN_PRINT("\n[HELP] ram command options:\n");
+		LOGIN_PRINT("  r : clear ram with 0\n");
+		LOGIN_PRINT("  d : dump ram with decimal format\n");
+		LOGIN_PRINT("  h : dump ram with hex format\n");
+		LOGIN_PRINT("  s : print stack usage\n");
+		LOGIN_PRINT("  c : print cpu register\n");
 	}
 		break;
 	}
@@ -814,7 +853,12 @@ int32_t shell_boot(uint8_t* argv) {
 	}
 		break;
 
-	default:
+	default: {
+		LOGIN_PRINT("\n[HELP] boot command options:\n");
+		LOGIN_PRINT("  i : print boot information\n");
+		LOGIN_PRINT("  r : reset boot information\n");
+		LOGIN_PRINT("  t : test bootloader jump (without actual jump, just set boot info for jump)\n");
+	}
 		break;
 	}
 

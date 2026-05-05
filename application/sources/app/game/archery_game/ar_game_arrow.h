@@ -14,11 +14,17 @@
 
 #include "buzzer.h"
 #include "scr_archery_game.h"
+#include "app_eeprom.h"
 
-#define MAX_NUM_ARROW       (5)
+#define MAX_NUM_ARROW       (AR_GAME_SETTING_NUM_ARROW_MAX)
 #define MAX_AXIS_X_ARROW    (120)
 #define SIZE_BITMAP_ARROW_X (10)
 #define SIZE_BITMAP_ARROW_Y (5)
+
+enum {
+    AR_GAME_ARROW_ACTION_IMAGE_1 = 1,
+    AR_GAME_ARROW_ACTION_IMAGE_END
+};
 
 typedef struct {
     bool visible;

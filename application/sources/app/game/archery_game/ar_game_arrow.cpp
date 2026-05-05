@@ -11,7 +11,7 @@ do { \
         arrow[i].x = 0; \
         arrow[i].y = 0; \
         arrow[i].visible = BLACK; \
-        arrow[i].action_image = 1; \
+        arrow[i].action_image = AR_GAME_ARROW_ACTION_IMAGE_1; \
     } \
 } while (0);
 
@@ -20,10 +20,13 @@ do { \
     for (uint8_t i = 0; i < MAX_NUM_ARROW; i++) { \
         if (arrow[i].visible == WHITE) { \
             arrow[i].x += settingsetup.arrow_speed; \
-            if (arrow[i].x == MAX_AXIS_X_ARROW) { \
+            if (arrow[i].x >= MAX_AXIS_X_ARROW) { \
                 arrow[i].visible = BLACK; \
                 arrow[i].x = 0; \
-                settingsetup.num_arrow++; \
+                if (settingsetup.num_arrow < MAX_NUM_ARROW) { \
+                    settingsetup.num_arrow++; \
+                    archery.action_image = AR_GAME_ARCHERY_ACTION_IMAGE_1; \
+                } \
             } \
         } \
     } \
@@ -31,17 +34,20 @@ do { \
 
 #define AR_GAME_ARROW_SHOOT() \
 do { \
-    for (uint8_t i = 0; i < MAX_NUM_ARROW; i++) { \
-        if (arrow[i].visible == BLACK && settingsetup.num_arrow != 0) { \
-            settingsetup.num_arrow--; \
-            arrow[i].visible = WHITE; \
-            arrow[i].y = archery.y - 5; \
-            BUZZER_PlayTones(tones_cc); \
-            break; \
-        } \
-        else if (settingsetup.num_arrow == 0) { \
-            BUZZER_PlayTones(tones_3beep); \
-            break; \
+    if (settingsetup.num_arrow == 0) { \
+        BUZZER_PlayTones(tones_3beep); \
+    } else { \
+        for (uint8_t i = 0; i < MAX_NUM_ARROW; i++) { \
+            if (arrow[i].visible == BLACK) { \
+                settingsetup.num_arrow--; \
+                arrow[i].visible = WHITE; \
+                arrow[i].y = archery.y - 5; \
+                if (settingsetup.num_arrow < 1) { \
+                    archery.action_image = AR_GAME_ARCHERY_ACTION_IMAGE_2; \
+                } \
+                BUZZER_PlayTones(tones_cc); \
+                break; \
+            } \
         } \
     } \
 } while(0);
@@ -49,10 +55,7 @@ do { \
 #define AR_GAME_ARROW_RESET() \
 do { \
     for (uint8_t i = 0; i < MAX_NUM_ARROW; i++) { \
-        arrow[i].x = 0; \
-        arrow[i].y = 0; \
         arrow[i].visible = BLACK; \
-        arrow[i].action_image = 1; \
     } \
 } while (0);
 

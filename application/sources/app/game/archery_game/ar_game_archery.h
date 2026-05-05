@@ -21,6 +21,12 @@
 #define AXIS_X_ARCHERY          (0)
 #define AXIS_Y_ARCHERY          (30)
 
+enum {
+	AR_GAME_ARCHERY_ACTION_IMAGE_1 = 1,	   // has arrow
+	AR_GAME_ARCHERY_ACTION_IMAGE_2,		   // empty
+	AR_GAME_ARCHERY_ACTION_IMAGE_END
+};
+
 typedef struct {
     bool visible;
     uint32_t x, y;

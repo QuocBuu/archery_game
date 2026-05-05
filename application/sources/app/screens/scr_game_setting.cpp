@@ -38,7 +38,7 @@ void view_scr_game_setting() {
 							AR_GAME_SETTING_CHOSSE_ICON_SIZE_W, \
 							AR_GAME_SETTING_CHOSSE_ICON_SIZE_H, \
 							WHITE);
-	if (settingdata.silent == 0) {
+	if (settingdata.silent == AR_GAME_SETTING_SILENT_OFF) {
 		view_render.drawBitmap(	109, 
 								AR_GAME_SETTING_FRAMES_AXIS_Y_1 + \
 								AR_GAME_SETTING_FRAMES_STEP*3-12, \
@@ -126,16 +126,16 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		case SETTING_ITEM_ARRDESS_1: {
 			// Change arrow number
 			settingdata.num_arrow++;
-			if (settingdata.num_arrow > MAX_NUM_ARROW) {
-				settingdata.num_arrow = 1;
+			if (settingdata.num_arrow > AR_GAME_SETTING_NUM_ARROW_MAX) {
+				settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MIN;
 			}
 		}
 			break;
 
 		case SETTING_ITEM_ARRDESS_2: {
 			settingdata.meteoroid_speed++;
-			if (settingdata.meteoroid_speed > 5) { 
-				settingdata.meteoroid_speed = 1;
+			if (settingdata.meteoroid_speed > AR_GAME_SETTING_METEOROID_SPEED_MAX) { 
+				settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MIN;
 			}
 		}
 			break;
@@ -149,7 +149,7 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 
 		case SETTING_ITEM_ARRDESS_4: {
 			// Save change and exit
-			settingdata.arrow_speed = 5;
+			settingdata.arrow_speed = AR_GAME_SETTING_ARROW_SPEED_DEFAULT;
 			ar_game_setting_write(&settingdata);
 			SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
 			BUZZER_PlayTones(tones_startup);
@@ -166,9 +166,9 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 	case AC_DISPLAY_BUTTON_UP_LONG_PRESSED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_LONG_PRESSED\n");
 		// Change data max
-		settingdata.num_arrow = MAX_NUM_ARROW;
-		settingdata.meteoroid_speed = 5;
-		settingdata.silent = 0;
+		settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MAX;
+		settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MAX;
+		settingdata.silent = AR_GAME_SETTING_SILENT_OFF;
 	}
 		BUZZER_Sleep(settingdata.silent);
 		BUZZER_PlayTones(tones_cc);
@@ -188,9 +188,9 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 	case AC_DISPLAY_BUTTON_DOWN_LONG_PRESSED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_LONG_PRESSED\n");
 		// Change data min
-		settingdata.num_arrow = 1;
-		settingdata.meteoroid_speed = 1;
-		settingdata.silent = 1;
+		settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MIN;
+		settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MIN;
+		settingdata.silent = AR_GAME_SETTING_SILENT_ON;
 	}
 		BUZZER_Sleep(settingdata.silent);
 		BUZZER_PlayTones(tones_cc);

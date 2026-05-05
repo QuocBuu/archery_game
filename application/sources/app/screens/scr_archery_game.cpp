@@ -26,21 +26,23 @@ void ar_game_frame_display() {
 }
 
 void ar_game_archery_display() {
-	if (archery.visible == WHITE && settingsetup.num_arrow != 0) {
-		view_render.drawBitmap(	archery.x, \
-								archery.y - 10, \
-								bitmap_archery_I, \
-								SIZE_BITMAP_ARCHERY_X, \
-								SIZE_BITMAP_ARCHERY_Y, \
-								WHITE);
-	}
-	else if (archery.visible == WHITE && settingsetup.num_arrow == 0) {
-		view_render.drawBitmap(	archery.x, \
-								archery.y - 10, \
-								bitmap_archery_II, \
-								SIZE_BITMAP_ARCHERY_X, \
-								SIZE_BITMAP_ARCHERY_Y, \
-								WHITE);
+	if (archery.visible == WHITE) {
+		if (archery.action_image == AR_GAME_ARCHERY_ACTION_IMAGE_1) {
+			view_render.drawBitmap(	archery.x, \
+					archery.y - 10, \
+					bitmap_archery_I, \
+					SIZE_BITMAP_ARCHERY_X, \
+					SIZE_BITMAP_ARCHERY_Y, \
+					WHITE);
+		}
+		else if (archery.action_image == AR_GAME_ARCHERY_ACTION_IMAGE_2) {
+			view_render.drawBitmap(	archery.x, \
+					archery.y - 10, \
+					bitmap_archery_II, \
+					SIZE_BITMAP_ARCHERY_X, \
+					SIZE_BITMAP_ARCHERY_Y, \
+					WHITE);
+		}
 	}
 }
 
@@ -60,7 +62,7 @@ void ar_game_arrow_display() {
 void ar_game_meteoroid_display() {
 	for (uint8_t i = 0; i < NUM_METEOROIDS; i++) {
 		if (meteoroid[i].visible == WHITE) {
-			if (meteoroid[i].action_image == 1) {
+			if (meteoroid[i].action_image == AR_GAME_METEOROID_ACTION_IMAGE_1) {
 				view_render.drawBitmap(	meteoroid[i].x, \
 										meteoroid[i].y, \
 										bitmap_meteoroid_I, \
@@ -68,7 +70,7 @@ void ar_game_meteoroid_display() {
 										SIZE_BITMAP_METEOROIDS_Y, \
 				 						WHITE);
 			}
-			else if (meteoroid[i].action_image == 2) {
+			else if (meteoroid[i].action_image == AR_GAME_METEOROID_ACTION_IMAGE_2) {
 				view_render.drawBitmap(	meteoroid[i].x, \
 										meteoroid[i].y, \
 										bitmap_meteoroid_II, \
@@ -76,7 +78,7 @@ void ar_game_meteoroid_display() {
 										SIZE_BITMAP_METEOROIDS_Y, \
 										WHITE);
 			}
-			else if (meteoroid[i].action_image == 3) {
+			else if (meteoroid[i].action_image == AR_GAME_METEOROID_ACTION_IMAGE_3) {
 				view_render.drawBitmap(	meteoroid[i].x, \
 										meteoroid[i].y, \
 										bitmap_meteoroid_III, \
@@ -91,7 +93,7 @@ void ar_game_meteoroid_display() {
 void ar_game_bang_display() {
 	for (uint8_t i = 0; i < NUM_BANG; i++) {
 		if (bang[i].visible == WHITE) {
-			if (bang[i].action_image == 1) {
+			if (bang[i].action_image == AR_GAME_BANG_ACTION_IMAGE_1) {
 				view_render.drawBitmap(	bang[i].x, \
 										bang[i].y, \
 										bitmap_bang_I, \
@@ -99,7 +101,7 @@ void ar_game_bang_display() {
 										SIZE_BITMAP_BANG_I_Y, \
 										WHITE);
 			}
-			else if (bang[i].action_image == 2) {
+			else if (bang[i].action_image == AR_GAME_BANG_ACTION_IMAGE_2) {
 				view_render.drawBitmap(	bang[i].x, \
 										bang[i].y, \
 										bitmap_bang_II, \
@@ -107,7 +109,7 @@ void ar_game_bang_display() {
 										SIZE_BITMAP_BANG_I_Y, \
 				 						WHITE);
 			}
-			else if (bang[i].action_image == 3) {
+			else if (bang[i].action_image == AR_GAME_BANG_ACTION_IMAGE_3) {
 				view_render.drawBitmap( bang[i].x + 2, \
 										bang[i].y - 1, \
 										bitmap_bang_III, \

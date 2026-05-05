@@ -8,10 +8,8 @@ ar_game_bang_t bang[NUM_BANG];
 #define AR_GAME_BANG_SETUP() \
 do { \
     for (uint8_t i = 0; i < NUM_BANG; i++) { \
-        bang[i].x = 0; \
-        bang[i].y = 0; \
         bang[i].visible = BLACK; \
-        bang[i].action_image = 1; \
+        bang[i].action_image = AR_GAME_BANG_ACTION_IMAGE_1; \
     } \
 } while (0);
 
@@ -21,8 +19,8 @@ do { \
         if (bang[i].visible == WHITE) { \
             bang[i].action_image++; \
         } \
-        if (bang[i].action_image == 4) { \
-            bang[i].action_image = 1; \
+        if (bang[i].action_image >= AR_GAME_BANG_ACTION_IMAGE_END) { \
+            bang[i].action_image = AR_GAME_BANG_ACTION_IMAGE_1; \
             bang[i].visible = BLACK; \
             meteoroid[i].visible = WHITE; \
         } \
@@ -33,7 +31,6 @@ do { \
 do { \
     for (uint8_t i = 0; i < NUM_BANG; i++) { \
         bang[i].visible = BLACK; \
-        bang[i].action_image = 1; \
     } \
 } while (0);
 
