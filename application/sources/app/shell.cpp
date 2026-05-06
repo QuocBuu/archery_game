@@ -186,13 +186,13 @@ int32_t shell_ver(uint8_t* argv) {
 int32_t shell_help(uint8_t* argv) {
 	uint32_t idx = 0;
 	switch (*(argv + 4)) {
-	default:
+	default: {
 		LOGIN_PRINT("\nCOMMANDS INFORMATION:\n\n");
 		while(lgn_cmd_table[idx].cmd != (const int8_t*)0) {
 			LOGIN_PRINT("%s\t-> %s\n\n", lgn_cmd_table[idx].cmd, lgn_cmd_table[idx].info);
 			idx++;
 		}
-		break;
+	} break;
 	}
 	return 0;
 }

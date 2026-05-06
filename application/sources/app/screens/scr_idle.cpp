@@ -121,22 +121,19 @@ void scr_idle_handle(ak_msg_t* msg) {
 				AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE, \
 				AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE_INTERAL, \
 				TIMER_PERIODIC);
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE: {
 		for (unsigned int i = 0; i < v_idle_ball.size(); i++) {
 			v_idle_ball[i].moving();
 		}
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_MODE_RELEASED\n");
 		timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
 		SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_UP_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_RELEASED\n");
@@ -156,8 +153,7 @@ void scr_idle_handle(ak_msg_t* msg) {
 		else {
 			BUZZER_PlayTones(tones_3beep);
 		}
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_DOWN_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_RELEASED\n");
@@ -170,8 +166,7 @@ void scr_idle_handle(ak_msg_t* msg) {
 			timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
 			SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
 		}
-	}
-		break;
+	} break;
 
 	default:
 		break;

@@ -7,6 +7,14 @@
 /*****************************************************************************/
 uint8_t ar_game_state; 
 ar_game_setting_t settingsetup;
+static uint8_t ar_game_over_text_index = 0;
+
+static void ar_game_print_text_partial(const char* text, uint8_t max_chars) {
+	if (text == NULL) return;
+	for (uint8_t i = 0; i < max_chars && text[i] != '\0'; i++) {
+		view_render.print(text[i]);
+	}
+}
 
 /*****************************************************************************/
 /* View - Archery game screen*/
@@ -164,40 +172,44 @@ void view_scr_archery_game() {
 	}
 	else if (ar_game_state == GAME_OVER) {
 		view_render.clear();
-		view_render.setTextSize(2);
+		view_render.drawBitmap(	0, \
+			0, \
+			bitmap_dolphin, \
+			119, \
+			62, \
+			WHITE);
+		
+		view_render.setTextSize(1);
 		view_render.setTextColor(WHITE);
-		view_render.setCursor(17, 24);
-		view_render.print("YOU LOSE");
+		view_render.setCursor(74, 15);
+		if (gamescore.score_now > 1000) {
+			ar_game_print_text_partial("Legendary", ar_game_over_text_index);
+		}
+		else if (gamescore.score_now > 800) {
+			ar_game_print_text_partial("Excellent", ar_game_over_text_index);
+		}
+		else if (gamescore.score_now > 500) {
+			ar_game_print_text_partial(" Great!", ar_game_over_text_index);
+		}
+		else if (gamescore.score_now > 200) {
+			ar_game_print_text_partial(" Not bad!", ar_game_over_text_index);
+		}
+		else {
+			ar_game_print_text_partial(" Too Bad!", ar_game_over_text_index);
+		}
 	}
 }
 
 /*****************************************************************************/
 /* Handle - Archery game screen */
 /*****************************************************************************/
-void ar_game_level_setup() {
-	ar_game_setting_read(&settingsetup);
-}
-
-void ar_game_time_tick_setup() {
-	timer_set(	AC_TASK_DISPLAY_ID, \
-				AR_GAME_TIME_TICK, \
-				AR_GAME_TIME_TICK_INTERVAL, \
-				TIMER_PERIODIC);
-}
-
-void ar_game_save_and_reset_score() {
-	eeprom_write(	EEPROM_SCORE_PLAY_ADDR, \
-					(uint8_t*)&ar_game_score, \
-					sizeof(ar_game_score));
-	ar_game_score = 10;
-}
-
 void scr_archery_game_handle(ak_msg_t* msg) {
 	switch (msg->sig) {
 	case SCREEN_ENTRY: {
 		APP_DBG_SIG("SCREEN_ENTRY\n");
-		// Level setup
-		ar_game_level_setup();
+		// Get setting data
+		ar_game_setting_read(&settingsetup);
+
 		// Setup game Object
 		task_post_pure_msg(AR_GAME_ARCHERY_ID, 	 	AR_GAME_ARCHERY_SETUP);
 		task_post_pure_msg(AR_GAME_ARROW_ID, 	 	AR_GAME_ARROW_SETUP);
@@ -205,11 +217,13 @@ void scr_archery_game_handle(ak_msg_t* msg) {
 		task_post_pure_msg(AR_GAME_BANG_ID, 	 	AR_GAME_BANG_SETUP);
 		task_post_pure_msg(AR_GAME_BORDER_ID, 	 	AR_GAME_BORDER_SETUP);
 		// Setup timer
-		ar_game_time_tick_setup();
+		timer_set(	AC_TASK_DISPLAY_ID, \
+					AR_GAME_TIME_TICK, \
+					AR_GAME_TIME_TICK_INTERVAL, \
+					TIMER_PERIODIC);
 		// State update
 		ar_game_state = GAME_PLAY;
-	}
-		break;
+	} break;
 
 	case AR_GAME_TIME_TICK: {
 		APP_DBG_SIG("AR_GAME_TIME_TICK\n");
@@ -221,8 +235,7 @@ void scr_archery_game_handle(ak_msg_t* msg) {
 		task_post_pure_msg(AR_GAME_BANG_ID, 		AR_GAME_BANG_UPDATE);
 		task_post_pure_msg(AR_GAME_BORDER_ID, 		AR_GAME_LEVEL_UP);
 		task_post_pure_msg(AR_GAME_BORDER_ID, 		AR_GAME_CHECK_GAME_OVER);
-	}
-		break;
+	} break;
 
 	case AR_GAME_RESET: {
 		APP_DBG_SIG("AR_GAME_RESET\n");
@@ -232,27 +245,52 @@ void scr_archery_game_handle(ak_msg_t* msg) {
 		task_post_pure_msg(AR_GAME_METEOROID_ID,	AR_GAME_METEOROID_RESET);
 		task_post_pure_msg(AR_GAME_BANG_ID, 		AR_GAME_BANG_RESET);
 		task_post_pure_msg(AR_GAME_BORDER_ID, 		AR_GAME_BORDER_RESET);
+
+		// Reset text animation index
+		ar_game_over_text_index = 0;
+
+		// Setup text animation timer
+		timer_set(	AC_TASK_DISPLAY_ID, \
+					AR_GAME_OVER_TEXT_ANIM_TICK, \
+					250, \
+					TIMER_PERIODIC);
+
 		// Timer Exit
 		timer_set(	AC_TASK_DISPLAY_ID, \
 					AR_GAME_EXIT_GAME, \
 					AR_GAME_TIME_EXIT_INTERVAL, \
 					TIMER_ONE_SHOT);
+
 		// Save and reset Score
-		ar_game_save_and_reset_score();
+		ar_game_score_read(&gamescore);
+		gamescore.score_now = ar_game_score;
+		ar_game_score_write(&gamescore);
+		ar_game_score = 10;
+
 		// State update
 		ar_game_state = GAME_OVER;
-	}
 		BUZZER_PlayTones(tones_3beep);
-		break;
+	} break;
+
+	case AR_GAME_OVER_TEXT_ANIM_TICK: {
+		APP_DBG_SIG("AR_GAME_OVER_TEXT_ANIM_TICK\n");
+		if (ar_game_over_text_index < 10) {
+			ar_game_over_text_index++;
+		}
+	} break;
 
 	case AR_GAME_EXIT_GAME: {
 		APP_DBG_SIG("AR_GAME_EXIT_GAME\n");
+		// Stop timer tick
+		timer_remove_attr(AC_TASK_DISPLAY_ID, AR_GAME_TIME_TICK);
+		// Stop text animation timer
+		timer_remove_attr(AC_TASK_DISPLAY_ID, AR_GAME_OVER_TEXT_ANIM_TICK);
+
 		// State update
 		ar_game_state = GAME_OFF;
 		// Change the screen
 		SCREEN_TRAN(scr_game_over_handle, &scr_game_over);		
-	}
-		break;
+	} break;
 
 	default:
 		break;

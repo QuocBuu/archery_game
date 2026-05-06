@@ -54,9 +54,11 @@ typedef struct {
 extern "C" {
 #endif
 
+extern ar_game_score_t gamescore;
 extern bool ar_game_score_read(ar_game_score_t* data);
 extern bool ar_game_score_write(ar_game_score_t* data);
 
+extern ar_game_setting_t settingdata;
 extern bool ar_game_setting_read(ar_game_setting_t* data);
 extern bool ar_game_setting_write(ar_game_setting_t* data);
 

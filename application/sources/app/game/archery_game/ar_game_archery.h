@@ -22,8 +22,8 @@
 #define AXIS_Y_ARCHERY          (30)
 
 enum {
-	AR_GAME_ARCHERY_ACTION_IMAGE_1 = 1,	   // has arrow
-	AR_GAME_ARCHERY_ACTION_IMAGE_2,		   // empty
+	AR_GAME_ARCHERY_ACTION_IMAGE_1 = 1,	   // Has arrow
+	AR_GAME_ARCHERY_ACTION_IMAGE_2,		   // Empty
 	AR_GAME_ARCHERY_ACTION_IMAGE_END
 };
 

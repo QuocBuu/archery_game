@@ -28,9 +28,12 @@ view_screen_t scr_charts_game = {
 void view_scr_charts_game() {
 	view_render.clear();
 	view_render.fillScreen(WHITE);
+	// Draw icon and frames
 	view_render.drawBitmap(35, 5, bitmap_icon_charts, 60, 20, 0);
 	view_render.fillRoundRect(1, 28, 126, 12, 5, 0);
 	view_render.fillRoundRect(1, 51, 126, 12, 5, 0);
+
+	// Draw score text
 	view_render.setTextSize(1);
 	view_render.setTextColor(WHITE);
 	view_render.setCursor(16, 30);

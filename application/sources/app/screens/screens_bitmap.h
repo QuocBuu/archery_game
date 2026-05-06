@@ -19,8 +19,8 @@ extern const unsigned char PROGMEM bitmap_icon_charts [];
 
 // scr_game_over
 extern const unsigned char PROGMEM icon_restart [];
-extern const unsigned char PROGMEM icon_charts [];
 extern const unsigned char PROGMEM icon_go_home [];
+extern const unsigned char PROGMEM bitmap_dolphin [];
 
 // scr_game_setting
 extern const unsigned char PROGMEM chosse_icon [];

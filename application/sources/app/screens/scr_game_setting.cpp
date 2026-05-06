@@ -116,8 +116,7 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		setting_location_chosse = SETTING_ITEM_ARRDESS_1;
 		// Read setting data
 		ar_game_setting_read(&settingdata);
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_MODE_RELEASED\n");
@@ -129,23 +128,20 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 			if (settingdata.num_arrow > AR_GAME_SETTING_NUM_ARROW_MAX) {
 				settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MIN;
 			}
-		}
-			break;
+		} break;
 
 		case SETTING_ITEM_ARRDESS_2: {
 			settingdata.meteoroid_speed++;
 			if (settingdata.meteoroid_speed > AR_GAME_SETTING_METEOROID_SPEED_MAX) { 
 				settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MIN;
 			}
-		}
-			break;
+		} break;
 
 		case SETTING_ITEM_ARRDESS_3: {
 			// Change meteoroid speed
 			settingdata.silent = !settingdata.silent;
 			BUZZER_Sleep(settingdata.silent);
-		}
-			break;
+		} break;
 
 		case SETTING_ITEM_ARRDESS_4: {
 			// Save change and exit
@@ -153,15 +149,13 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 			ar_game_setting_write(&settingdata);
 			SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
 			BUZZER_PlayTones(tones_startup);
-		}
-			break;
+		} break;
 
-		default:
+		default: 
 			break;
 		}
-	}
 		BUZZER_PlayTones(tones_cc);
-		break;
+	} break;
 	
 	case AC_DISPLAY_BUTTON_UP_LONG_PRESSED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_LONG_PRESSED\n");
@@ -169,10 +163,11 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MAX;
 		settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MAX;
 		settingdata.silent = AR_GAME_SETTING_SILENT_OFF;
-	}
+		
+		// Setting buzzer
 		BUZZER_Sleep(settingdata.silent);
 		BUZZER_PlayTones(tones_cc);
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_UP_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_RELEASED\n");
@@ -181,9 +176,8 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		if (setting_location_chosse == SETTING_ITEM_ARRDESS_0) { 
 			setting_location_chosse = SETTING_ITEM_ARRDESS_4;
 		}
-	}
 		BUZZER_PlayTones(tones_cc);
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_DOWN_LONG_PRESSED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_LONG_PRESSED\n");
@@ -191,10 +185,11 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MIN;
 		settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MIN;
 		settingdata.silent = AR_GAME_SETTING_SILENT_ON;
-	}
+		
+		// Setting buzzer
 		BUZZER_Sleep(settingdata.silent);
 		BUZZER_PlayTones(tones_cc);
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_DOWN_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_RELEASED\n");
@@ -203,9 +198,8 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		if (setting_location_chosse > SETTING_ITEM_ARRDESS_4) { 
 			setting_location_chosse = SETTING_ITEM_ARRDESS_1;
 		}
-	}
 		BUZZER_PlayTones(tones_cc);
-		break;
+	} break;
 
 	default:
 		break;

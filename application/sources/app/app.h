@@ -119,25 +119,15 @@ enum {
 #define AC_DISPLAY_IDLE_INTERVAL									(20000)
 #define AC_DISPLAY_LOGO_INTERVAL									(10000)
 #define AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE_INTERAL				(150)
+#define AC_DISPLAY_MINIMUM_SCREEN_RENDER_INTERVAL_MS				(50) /* 50ms => Max 20 FPS */
 
 /* define signal */
 enum {
-	AC_DISPLAY_INITIAL = AK_USER_DEFINE_SIG,
-	AC_DISPLAY_SHOW_LOGO,
-	AC_DISPLAY_SHOW_IDLE,
-	AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE,
-	AC_DISPLAY_SHOW_FW_UPDATE,
-	AC_DISPLAY_SHOW_FW_UPDATE_ERR,
-};
+	/* Render screen signals */
+	AC_DISPLAY_RENDER_SCREEN = AK_SYS_DEFINE_SIG,
 
-/*****************************************************************************/
-/*  BUTTON task define
- */
-/*****************************************************************************/
-/* define timer */
-/* define signal */
-enum {
-	AC_DISPLAY_BUTTON_MODE_PRESSED = 1,						
+	/* Button signals */
+	AC_DISPLAY_BUTTON_MODE_PRESSED,						
 	AC_DISPLAY_BUTTON_MODE_LONG_PRESSED,					
 	AC_DISPLAY_BUTTON_MODE_RELEASED,
 	AC_DISPLAY_BUTTON_UP_PRESSED,							
@@ -146,6 +136,20 @@ enum {
 	AC_DISPLAY_BUTTON_DOWN_PRESSED,						
 	AC_DISPLAY_BUTTON_DOWN_LONG_PRESSED,					
 	AC_DISPLAY_BUTTON_DOWN_RELEASED,
+
+	/* Screen signal */
+	AC_DISPLAY_INITIAL = AK_USER_DEFINE_SIG,
+
+	/* Screen Startup signals */
+	AC_DISPLAY_SHOW_STARTUP_LOGO,
+
+	/* Idle screen signals */
+	AC_DISPLAY_SHOW_IDLE,
+	AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE, 
+
+	/* Firmware update signals */
+	AC_DISPLAY_SHOW_FW_UPDATE,
+	AC_DISPLAY_SHOW_FW_UPDATE_ERR,
 };
 
 /*****************************************************************************/
@@ -153,13 +157,13 @@ enum {
  */
 /*****************************************************************************/
 /* define timer */
-#define AR_GAME_TIME_TICK_INTERVAL									(100)
-#define AR_GAME_TIME_EXIT_INTERVAL									(3000)
+#define AR_GAME_TIME_TICK_INTERVAL									(70)
+#define AR_GAME_TIME_EXIT_INTERVAL									(5000)
 /* define signal */
 enum {
-	AR_GAME_INITIAL_SETUP = AK_USER_DEFINE_SIG,
 	AR_GAME_TIME_TICK = AR_GAME_DEFINE_SIG,
 	AR_GAME_RESET,
+	AR_GAME_OVER_TEXT_ANIM_TICK,
 	AR_GAME_EXIT_GAME,
 };
 
@@ -233,7 +237,7 @@ enum {
  */
 /*****************************************************************************/
 #define APP_MAGIC_NUMBER	0xAABBCCDD
-#define APP_VER				{0, 0, 0, 3}
+#define APP_VER				{0, 1, 0, 0}
 
 typedef struct {
 	uint32_t magic_number;

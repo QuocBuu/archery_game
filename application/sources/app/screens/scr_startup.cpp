@@ -51,26 +51,23 @@ void scr_startup_handle(ak_msg_t* msg) {
 		view_render.initialize();
 		view_render_display_on();
 		timer_set(	AC_TASK_DISPLAY_ID, \
-					AC_DISPLAY_SHOW_LOGO, \
+					AC_DISPLAY_SHOW_STARTUP_LOGO, \
 					AC_DISPLAY_STARTUP_INTERVAL, \
 					TIMER_ONE_SHOT);
 		// Read setting
 		ar_game_setting_read(&settingdata);
 		BUZZER_Sleep(settingdata.silent);
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_MODE_RELEASED\n");
 		SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
-	}
-		break;
+	} break;
 
-	case AC_DISPLAY_SHOW_LOGO: {
-		APP_DBG_SIG("AC_DISPLAY_SHOW_LOGO\n");
+	case AC_DISPLAY_SHOW_STARTUP_LOGO: {
+		APP_DBG_SIG("AC_DISPLAY_SHOW_STARTUP_LOGO\n");
 		SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
-	}
-		break;
+	} break;
 
 	default:
 		break;

@@ -62,15 +62,15 @@ static const uint8_t *menu_items_icon[NUMBER_MENU_ITEMS] = {
 uint8_t menu_items_icon_size_w[NUMBER_MENU_ITEMS] = {
 	15,							// item 1
 	16,							// item 2
-	16,							// item 3
-	15,							// item 4
+	17,							// item 3
+	16,							// item 4
 };
 
 uint8_t menu_items_icon_size_h[NUMBER_MENU_ITEMS] = {
 	15,							// item 1
 	16,							// item 2
 	16,							// item 3
-	15,							// item 4
+	16,							// item 4
 };
 
 // Menu items color
@@ -140,6 +140,7 @@ view_screen_t scr_menu_game = {
 void view_scr_menu_game() {
 #define AR_GAME_MENU_ICON_AXIS_X			(7)
 #define AR_GAME_MENU_TEXT_AXIS_X			(20)
+
 	// Scroll bar
 	view_render.fillRect(	scroll_bar.axis_x - 1, \
 							scroll_bar.axis_y, \
@@ -152,6 +153,7 @@ void view_scr_menu_game() {
 							1, \
 							SCREEN_MENU_H, \
 							WHITE);
+
 	// Frame White
 	view_render.fillRoundRect(	frame_white.axis_x, \
 								frame_white.axis_y, \
@@ -159,15 +161,16 @@ void view_scr_menu_game() {
 								frame_white.size_h, \
 								frame_white.size_r, \
 								WHITE);
+
 	for (uint8_t i = 0; i < 3; i++) {
-	// Frames
+		// Frames
 		view_render.drawRoundRect(	frame[i].axis_x, \
 									frame[i].axis_y, \
 									frame[i].size_w, \
 									frame[i].size_h, \
 									frame[i].size_r, \
 									WHITE);
-	// Icon
+		// Icon
 		view_render.drawBitmap(	AR_GAME_MENU_ICON_AXIS_X, \
 								menu_items_icon_axis_y[i], \
 								menu_items_icon[screen_menu.screen + i], \
@@ -175,6 +178,7 @@ void view_scr_menu_game() {
 								menu_items_icon_size_h[screen_menu.screen + i], \
 								menu_items_icon_color[screen_menu.screen + i]);
 	}
+
 	// Text Menu
 	view_render.setTextSize(1);
 	for (uint8_t i = 0; i < 3; i++) {
@@ -202,18 +206,21 @@ void update_menu_screen_chosse() {
 
 void screen_tran_menu() {
 	switch (screen_menu.location) {
-	case 0:	// item 1
-			SCREEN_TRAN(scr_archery_game_handle,	&scr_archery_game	);
-		break;
-	case 1:	// item 2
-			SCREEN_TRAN(scr_game_setting_handle,	&scr_game_setting	);
-		break;
-	case 2:	// item 3
-			SCREEN_TRAN(scr_charts_game_handle,		&scr_charts_game	);
-		break;
-	case 3: // item 4
-			SCREEN_TRAN(scr_idle_handle,			&scr_idle			);
-		break;
+	case 0:	{ // item 1
+		SCREEN_TRAN(scr_archery_game_handle,	&scr_archery_game	);
+	} break;
+
+	case 1:	{ // item 2
+		SCREEN_TRAN(scr_game_setting_handle,	&scr_game_setting	);
+	} break;
+
+	case 2:	{ // item 3
+		SCREEN_TRAN(scr_charts_game_handle,		&scr_charts_game	);
+	} break; 
+
+	case 3: { // item 4
+		SCREEN_TRAN(scr_idle_handle,			&scr_idle			);
+	} break;
 	
 	default:
 		break;
@@ -232,25 +239,23 @@ void scr_menu_game_handle(ak_msg_t* msg) {
 					AC_DISPLAY_SHOW_IDLE, \
 					AC_DISPLAY_IDLE_INTERVAL, \
 					TIMER_ONE_SHOT);
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_SHOW_IDLE: {
 		SCREEN_TRAN(scr_idle_handle,&scr_idle);
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_MODE_RELEASED\n");
 		screen_tran_menu();
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_UP_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_RELEASED\n");
 		if (screen_menu.location > 0) {
 			screen_menu.location--;
 		}
+
 		if (frame_white.axis_y == frame[0].axis_y) {
 			if (screen_menu.screen > 0) {
 				screen_menu.screen--;
@@ -262,15 +267,17 @@ void scr_menu_game_handle(ak_msg_t* msg) {
 		else if (frame_white.axis_y == frame[2].axis_y) {
 			frame_white.axis_y = frame[1].axis_y;
 		}
+
 		update_menu_screen_chosse();
+
 		// Reset timer switch to scr_idle
 		timer_set(	AC_TASK_DISPLAY_ID, \
 					AC_DISPLAY_SHOW_IDLE, \
 					AC_DISPLAY_IDLE_INTERVAL, \
 					TIMER_ONE_SHOT);
-	}
+
 		BUZZER_PlayTones(tones_cc);
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_DOWN_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_RELEASED\n");
@@ -278,6 +285,7 @@ void scr_menu_game_handle(ak_msg_t* msg) {
 		if (screen_menu.location < NUMBER_MENU_ITEMS-1) {
 			screen_menu.location++;
 		}
+
 		if (frame_white.axis_y == frame[0].axis_y) {
 			frame_white.axis_y = frame[1].axis_y;
 		}
@@ -289,15 +297,17 @@ void scr_menu_game_handle(ak_msg_t* msg) {
 				screen_menu.screen++;
 			}
 		}
+
 		update_menu_screen_chosse();
+
 		// Reset timer switch to scr_idle
 		timer_set(	AC_TASK_DISPLAY_ID, \
 					AC_DISPLAY_SHOW_IDLE, \
 					AC_DISPLAY_IDLE_INTERVAL, \
 					TIMER_ONE_SHOT);
-	}
+
 		BUZZER_PlayTones(tones_cc);
-		break;
+	} break;
 
 	default:
 		break;
