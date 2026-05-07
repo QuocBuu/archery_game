@@ -895,57 +895,87 @@ int32_t shell_buzzer(uint8_t* argv) {
 	}
 		break;
 
+	case '0': {
+		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
+	}
+		break;
+
 	case '1': {
-		BUZZER_PlayTones(tones_cc);
+		BUZZER_PlaySound(BUZZER_SOUND_LETS_GO);
 	}
 		break;
 
 	case '2': {
-		BUZZER_PlayTones(tones_BUM);
+		BUZZER_PlaySound(BUZZER_SOUND_BANG);
 	}
 		break;
 
 	case '3': {
-		BUZZER_PlayTones(tones_USB_con);
+		BUZZER_PlaySound(BUZZER_SOUND_USB_CONNECTED);
 	}
 		break;
 
 	case '4': {
-		BUZZER_PlayTones(tones_USB_dis);
+		BUZZER_PlaySound(BUZZER_SOUND_USB_DISCONNECTED);
 	}
 		break;
 
 	case '5': {
-		BUZZER_PlayTones(tones_startup);
+		BUZZER_PlaySound(BUZZER_SOUND_STARTUP);
 	}
 		break;
 
 	case '6': {
-		BUZZER_PlayTones(tones_3beep);
+		BUZZER_PlaySound(BUZZER_SOUND_3BEEP);
 	}
 		break;
 
 	case '7': {
-		BUZZER_PlayTones(tones_SMB);
+		BUZZER_PlaySound(BUZZER_SOUND_SUPER_MARIO);
 	}
 		break;
 
 	case '8': {
-		BUZZER_PlayTones(tones_merryChristmas);
+		BUZZER_PlaySound(BUZZER_SOUND_MERRY_CHRISTMAS);
+	}
+		break;
+
+	case '9': {
+		BUZZER_PlaySound(BUZZER_SOUND_WELCOME);
+	}
+		break;
+
+	case 'a': {
+		BUZZER_PlaySound(BUZZER_SOUND_GOODBYE);
+	}
+		break;
+
+	case 'b': {
+		BUZZER_PlaySound(BUZZER_SOUND_HIGHSCORE);
+	}
+		break;
+
+	case 'c': {
+		BUZZER_PlaySound(BUZZER_SOUND_LOWSCORE);
 	}
 		break;
 
 	default:
 		LOGIN_PRINT("\n[HELP]\n");
 		LOGIN_PRINT("1. \"beep i\"                           : init buzzer play tones \n");
-		LOGIN_PRINT("2. \"beep 1\"                           : buzzer play tones c \n");
-		LOGIN_PRINT("3. \"beep 2\"                           : buzzer play tones BUM \n");
-		LOGIN_PRINT("4. \"beep 3\"                           : buzzer play tones USB con \n");
-		LOGIN_PRINT("5. \"beep 4\"                           : buzzer play tones USB dis \n");
-		LOGIN_PRINT("6. \"beep 5\"                           : buzzer play tones startup \n");
-		LOGIN_PRINT("7. \"beep 6\"                           : buzzer play tones three beeps \n");
-		LOGIN_PRINT("8. \"beep 7\"                           : buzzer play tones super mario bros \n");
-		LOGIN_PRINT("9. \"beep 8\"                           : buzzer play tones merry chrismast \n");
+		LOGIN_PRINT("2. \"beep 0\"                           : buzzer play tones click \n");
+		LOGIN_PRINT("3. \"beep 1\"                           : buzzer play tones lets go \n");
+		LOGIN_PRINT("4. \"beep 2\"                           : buzzer play tones bang \n");
+		LOGIN_PRINT("5. \"beep 3\"                           : buzzer play tones USB connected \n");
+		LOGIN_PRINT("6. \"beep 4\"                           : buzzer play tones USB disconnected \n");
+		LOGIN_PRINT("7. \"beep 5\"                           : buzzer play tones startup \n");
+		LOGIN_PRINT("8. \"beep 6\"                           : buzzer play tones three beeps \n");
+		LOGIN_PRINT("9. \"beep 7\"                           : buzzer play tones super mario bros \n");
+		LOGIN_PRINT("10. \"beep 8\"                          : buzzer play tones merry christmas \n");
+		LOGIN_PRINT("11. \"beep 9\"                          : buzzer play tones welcome \n");
+		LOGIN_PRINT("12. \"beep a\"                          : buzzer play tones goodbye \n");
+		LOGIN_PRINT("13. \"beep b\"                          : buzzer play tones highscore \n");
+		LOGIN_PRINT("14. \"beep c\"                          : buzzer play tones lowscore \n");
 		break;
 	}
 
