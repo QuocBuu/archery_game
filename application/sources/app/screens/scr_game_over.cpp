@@ -4,7 +4,6 @@
 /*****************************************************************************/
 /* Variable Declaration - game over */
 /*****************************************************************************/
-ar_game_score_t gamescore;
 
 /*****************************************************************************/
 /* View - game over */
@@ -71,11 +70,16 @@ void scr_game_over_handle(ak_msg_t* msg) {
 		view_render.initialize();
 		view_render_display_on();
 
+		uint32_t score_now = gamescore.score_now;
+
 		// Read score 1st, 2nd, 3rd
 		ar_game_score_read(&gamescore);
 
-		// Reorganize
+		gamescore.score_now = score_now;
+
+		// Reorganize and save score once
 		rank_ranking();
+		ar_game_score_write(&gamescore);
 
 		// Timer show idle screen
 		timer_set(	AC_TASK_DISPLAY_ID, \
@@ -86,24 +90,18 @@ void scr_game_over_handle(ak_msg_t* msg) {
 
 	case AC_DISPLAY_BUTTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_MODE_RELEASED\n");
-		// Save score and go Menu game
-		ar_game_score_write(&gamescore);
 		SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
 		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
 	} break;
 
 	case AC_DISPLAY_BUTTON_UP_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_RELEASED\n");
-		// Save score and go Charts
-		ar_game_score_write(&gamescore);
 		SCREEN_TRAN(scr_charts_game_handle, &scr_charts_game );
 		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
 	} break;
 
 	case AC_DISPLAY_BUTTON_DOWN_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_RELEASED\n");
-		// Save score and restart game
-		ar_game_score_write(&gamescore);
 		SCREEN_TRAN(scr_archery_game_handle, &scr_archery_game );
 		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
 	} break;

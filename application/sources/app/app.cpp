@@ -165,8 +165,6 @@ int main_app() {
 	flash_erase_sector(APP_FLASH_AK_DBG_FATAL_LOG_SECTOR);
 	flash_write(APP_FLASH_AK_DBG_FATAL_LOG_SECTOR, reinterpret_cast<uint8_t*>(&app_fatal_log), sizeof(fatal_log_t));
 
-	EXIT_CRITICAL();
-
 	/* start timer for application */
 	app_init_state_machine();
 	app_start_timer();
@@ -257,7 +255,7 @@ void app_start_timer() {
  * used for app tasks
  */
 void app_init_state_machine() {
-
+	/* TODO: Initialize state machine */
 }
 
 /* send first message to trigger start tasks

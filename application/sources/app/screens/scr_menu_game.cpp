@@ -2,20 +2,19 @@
 /*****************************************************************************/
 /* Instructions for adding new items to the menu*/
 /*****************************************************************************/
-/*  ** Để làm nhanh nhấn "Ctrl + F" để tìm theo từ khóa **
-	Bước 1: Chuẩn bị icon cho item sẽ thêm vào kích thước 13-18 px*px
-	Bước 2: Thêm 1 item vào menu
-			- Tăng số lượng item: tăng "NUMBER_MENU_ITEMS" thêm 1
-			- Thêm định danh: tăng "NUMBER_MENU_ITEMS" thêm 1 item
-			- Thêm định dạng màu: tăng "MENU_ITEMS_ICON_COLOR" thêm 1 item
-	Bước 3: Thêm tên cho item vào "menu_items_name[]"
-	Bước 4: Thêm icon cho item:
-			- Thêm icon: menu_items_icon[]
-			- Thêm kich thước: menu_items_icon_size_w[], menu_items_icon_size_h[]
-	Bước 5: Thêm địa chỉ cho item:
-			- Thêm 1 item vào: "screen_tran_menu()" rồi điền địa chỉ muốn 
-			chuyển tới.
-	## Nếu icon không cân xứng vào "menu_items_icon_axis_y[3]" để điều chỉnh lại.
+/*  ** For quick editing, press "Ctrl + F" and search by keyword. **
+	Step 1: Prepare the icon for the new item, recommended size 13-18 px.
+	Step 2: Add one item to the menu.
+			- Increase "NUMBER_MENU_ITEMS" by 1.
+			- Add one item identifier.
+			- Add one color format entry in "MENU_ITEMS_ICON_COLOR".
+	Step 3: Add the item name to "menu_items_name[]".
+	Step 4: Add the item icon.
+			- Add icon data to menu_items_icon[].
+			- Add icon size to menu_items_icon_size_w[] and menu_items_icon_size_h[].
+	Step 5: Add the target screen.
+			- Add one case to "screen_tran_menu()" and set the target screen address.
+	## If the icon is not aligned, adjust "menu_items_icon_axis_y[3]".
 */
 
 /*****************************************************************************/

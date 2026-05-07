@@ -252,6 +252,10 @@ void scr_archery_game_handle(ak_msg_t* msg) {
 
 	case AR_GAME_RESET: {
 		APP_DBG_SIG("AR_GAME_RESET\n");
+   
+		// Stop timer tick
+		timer_remove_attr(AC_TASK_DISPLAY_ID, AR_GAME_TIME_TICK);
+
 		// Reset game Object
 		task_post_pure_msg(AR_GAME_ARCHERY_ID, 		AR_GAME_ARCHERY_RESET);
 		task_post_pure_msg(AR_GAME_ARROW_ID, 		AR_GAME_ARROW_RESET);
@@ -271,7 +275,6 @@ void scr_archery_game_handle(ak_msg_t* msg) {
 		// Save and reset Score
 		ar_game_score_read(&gamescore);
 		gamescore.score_now = ar_game_score;
-		ar_game_score_write(&gamescore);
 		ar_game_score = 10;
 
 		// Setup text animation timer
@@ -307,8 +310,7 @@ void scr_archery_game_handle(ak_msg_t* msg) {
 
 	case AR_GAME_EXIT_GAME: {
 		APP_DBG_SIG("AR_GAME_EXIT_GAME\n");
-		// Stop timer tick
-		timer_remove_attr(AC_TASK_DISPLAY_ID, AR_GAME_TIME_TICK);
+
 		// Stop text animation timer
 		timer_remove_attr(AC_TASK_DISPLAY_ID, AR_GAME_OVER_TEXT_ANIM_TICK);
 
