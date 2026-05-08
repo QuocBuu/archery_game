@@ -87,57 +87,47 @@ sequenceDiagram
     participant Border as Border task
     participant View as View render
 
-    rect rgb(235, 245, 255)
-        Note over Scr,Border: Screen entry and object setup
-        Scr->>Arch: AR_GAME_ARCHERY_SETUP
-        Scr->>Arrow: AR_GAME_ARROW_SETUP
-        Scr->>Met: AR_GAME_METEOROID_SETUP
-        Scr->>Bang: AR_GAME_BANG_SETUP
-        Scr->>Border: AR_GAME_BORDER_SETUP
-        Scr->>Scr: start AR_GAME_TIME_TICK timer
-        Scr->>Scr: ar_game_state = GAME_PLAY
-    end
+    Note over Scr,Border: Screen entry and object setup
+    Scr->>Arch: AR_GAME_ARCHERY_SETUP
+    Scr->>Arrow: AR_GAME_ARROW_SETUP
+    Scr->>Met: AR_GAME_METEOROID_SETUP
+    Scr->>Bang: AR_GAME_BANG_SETUP
+    Scr->>Border: AR_GAME_BORDER_SETUP
+    Scr->>Scr: start AR_GAME_TIME_TICK timer
+    Scr->>Scr: ar_game_state = GAME_PLAY
 
-    rect rgb(245, 245, 245)
-        Note over Btn,Arrow: Player input while game is running
-        Btn->>Arch: AR_GAME_ARCHERY_UP
-        Btn->>Arch: AR_GAME_ARCHERY_DOWN
-        Btn->>Arrow: AR_GAME_ARROW_SHOOT
-    end
+    Note over Btn,Arrow: Player input while game is running
+    Btn->>Arch: AR_GAME_ARCHERY_UP
+    Btn->>Arch: AR_GAME_ARCHERY_DOWN
+    Btn->>Arrow: AR_GAME_ARROW_SHOOT
 
-    rect rgb(240, 255, 240)
-        Note over Scr,Border: Periodic game tick
-        Scr->>Arch: AR_GAME_ARCHERY_UPDATE
-        Scr->>Arrow: AR_GAME_ARROW_RUN
-        Scr->>Met: AR_GAME_METEOROID_RUN
-        Scr->>Met: AR_GAME_METEOROID_DETONATOR
-        Scr->>Bang: AR_GAME_BANG_UPDATE
-        Scr->>Border: AR_GAME_LEVEL_UP
-        Scr->>Border: AR_GAME_CHECK_GAME_OVER
-    end
+    Note over Scr,Border: Periodic game tick
+    Scr->>Arch: AR_GAME_ARCHERY_UPDATE
+    Scr->>Arrow: AR_GAME_ARROW_RUN
+    Scr->>Met: AR_GAME_METEOROID_RUN
+    Scr->>Met: AR_GAME_METEOROID_DETONATOR
+    Scr->>Bang: AR_GAME_BANG_UPDATE
+    Scr->>Border: AR_GAME_LEVEL_UP
+    Scr->>Border: AR_GAME_CHECK_GAME_OVER
 
-    rect rgb(250, 250, 250)
-        Note over View,Border: Render current object state
-        View-->>Arch: read Archery state
-        View-->>Arrow: read Arrow state
-        View-->>Met: read Meteoroid state
-        View-->>Bang: read Bang state
-        View-->>Border: read Border state
-        View->>View: draw gameplay frame
-    end
+    Note over View,Border: Render current object state
+    View-->>Arch: read Archery state
+    View-->>Arrow: read Arrow state
+    View-->>Met: read Meteoroid state
+    View-->>Bang: read Bang state
+    View-->>Border: read Border state
+    View->>View: draw gameplay frame
 
-    rect rgb(255, 245, 235)
-        Note over Border,Scr: Game over flow
-        Border->>Scr: AR_GAME_RESET
-        Scr->>Scr: stop AR_GAME_TIME_TICK timer
-        Scr->>Arch: AR_GAME_ARCHERY_RESET
-        Scr->>Arrow: AR_GAME_ARROW_RESET
-        Scr->>Met: AR_GAME_METEOROID_RESET
-        Scr->>Bang: AR_GAME_BANG_RESET
-        Scr->>Border: AR_GAME_BORDER_RESET
-        Scr->>Scr: save score and show GAME_OVER
-        Scr->>Scr: start AR_GAME_EXIT_GAME timer
-    end
+    Note over Border,Scr: Game over flow
+    Border->>Scr: AR_GAME_RESET
+    Scr->>Scr: stop AR_GAME_TIME_TICK timer
+    Scr->>Arch: AR_GAME_ARCHERY_RESET
+    Scr->>Arrow: AR_GAME_ARROW_RESET
+    Scr->>Met: AR_GAME_METEOROID_RESET
+    Scr->>Bang: AR_GAME_BANG_RESET
+    Scr->>Border: AR_GAME_BORDER_RESET
+    Scr->>Scr: save score and show GAME_OVER
+    Scr->>Scr: start AR_GAME_EXIT_GAME timer
 ```
 
 Các mốc chính:
@@ -244,34 +234,26 @@ sequenceDiagram
     participant A as Archery task
     participant View as View render
 
-    rect rgb(235, 245, 255)
-        Note over Scr,A: Setup when entering gameplay
-        Scr->>A: AR_GAME_ARCHERY_SETUP
-        A->>A: x = 0, y = 30, visible = WHITE
-        A->>A: action_image = Has Arrow or Empty
-    end
+    Note over Scr,A: Setup when entering gameplay
+    Scr->>A: AR_GAME_ARCHERY_SETUP
+    A->>A: x = 0, y = 30, visible = WHITE
+    A->>A: action_image = Has Arrow or Empty
 
-    rect rgb(245, 245, 245)
-        Note over Btn,A: Player button input
-        Btn->>A: AR_GAME_ARCHERY_UP
-        A->>A: archery_y -= 10, min = 10
-        Btn->>A: AR_GAME_ARCHERY_DOWN
-        A->>A: archery_y += 10, max = 50
-    end
+    Note over Btn,A: Player button input
+    Btn->>A: AR_GAME_ARCHERY_UP
+    A->>A: archery_y -= 10, min = 10
+    Btn->>A: AR_GAME_ARCHERY_DOWN
+    A->>A: archery_y += 10, max = 50
 
-    rect rgb(240, 255, 240)
-        Note over Scr,View: 70ms tick and frame render
-        Scr->>A: AR_GAME_ARCHERY_UPDATE
-        A->>A: archery.y = archery_y
-        View-->>A: read x, y, visible, action_image
-        View->>View: draw Archery bitmap
-    end
+    Note over Scr,View: 70ms tick and frame render
+    Scr->>A: AR_GAME_ARCHERY_UPDATE
+    A->>A: archery.y = archery_y
+    View-->>A: read x, y, visible, action_image
+    View->>View: draw Archery bitmap
 
-    rect rgb(255, 245, 235)
-        Note over Scr,A: Reset on game over
-        Scr->>A: AR_GAME_ARCHERY_RESET
-        A->>A: visible = BLACK
-    end
+    Note over Scr,A: Reset on game over
+    Scr->>A: AR_GAME_ARCHERY_RESET
+    A->>A: visible = BLACK
 ```
 
 Tóm tắt:
@@ -293,50 +275,39 @@ sequenceDiagram
     participant Buzz as Buzzer
     participant View as View render
 
-    rect rgb(235, 245, 255)
-        Note over Scr,A: Setup when entering gameplay
-        Scr->>A: AR_GAME_ARROW_SETUP
-        A->>A: clear arrow[], visible = BLACK
-    end
+    Note over Scr,A: Setup when entering gameplay
+    Scr->>A: AR_GAME_ARROW_SETUP
+    A->>A: clear arrow[], visible = BLACK
 
-    rect rgb(245, 245, 245)
-        Note over Btn,Buzz: Mode button shoots
-        Btn->>A: AR_GAME_ARROW_SHOOT
-        alt settingsetup.num_arrow == 0
-            A->>Buzz: BUZZER_SOUND_3BEEP
-        else Arrow available
-            A->>A: find hidden arrow[i]
-            A-->>Bow: read archery.y
-            A->>A: arrow[i].visible = WHITE
-            A->>A: arrow[i].y = archery.y - 5
-            A->>A: settingsetup.num_arrow--
-            opt no Arrow remains after shooting
-                A->>Bow: action_image = Empty
-            end
-            A->>Buzz: BUZZER_SOUND_CLICK
-        end
-    end
+    Note over Btn,Buzz: Mode button shoots
+    Btn->>A: AR_GAME_ARROW_SHOOT
+    A->>A: check available Arrow count
 
-    rect rgb(240, 255, 240)
-        Note over Scr,View: 70ms tick and render
-        Scr->>A: AR_GAME_ARROW_RUN
-        loop each visible Arrow
-            A->>A: x += settingsetup.arrow_speed
-            alt x >= 120
-                A->>A: hide Arrow, reset x
-                A->>A: settingsetup.num_arrow++
-                A->>Bow: action_image = Has Arrow
-            end
-        end
-        View-->>A: read arrow[]
-        View->>View: draw visible Arrows
-    end
+    Note over A,Buzz: No Arrow Handling
+    A->>Buzz: BUZZER_SOUND_3BEEP when no Arrow remains
 
-    rect rgb(255, 245, 235)
-        Note over Scr,A: Reset on game over
-        Scr->>A: AR_GAME_ARROW_RESET
-        A->>A: hide all arrow[]
-    end
+    Note over A,Buzz: Available Arrow Handling
+    A->>A: find hidden arrow[i]
+    A-->>Bow: read archery.y
+    A->>A: arrow[i].visible = WHITE
+    A->>A: arrow[i].y = archery.y - 5
+    A->>A: settingsetup.num_arrow--
+    A->>Bow: action_image = Empty when last Arrow is used
+    A->>Buzz: BUZZER_SOUND_CLICK
+
+    Note over Scr,View: 70ms tick and render
+    Scr->>A: AR_GAME_ARROW_RUN
+    A->>A: update each visible Arrow position
+    A->>A: x += settingsetup.arrow_speed
+    A->>A: hide Arrow when x >= 120
+    A->>A: restore settingsetup.num_arrow
+    A->>Bow: action_image = Has Arrow
+    View-->>A: read arrow[]
+    View->>View: draw visible Arrows
+
+    Note over Scr,A: Reset on game over
+    Scr->>A: AR_GAME_ARROW_RESET
+    A->>A: hide all arrow[]
 ```
 
 Tóm tắt:
@@ -356,39 +327,28 @@ sequenceDiagram
     participant B as Bang state
     participant View as View render
 
-    rect rgb(235, 245, 255)
-        Note over Scr,B: Setup when entering gameplay
-        Scr->>B: AR_GAME_BANG_SETUP
-        B->>B: clear bang[], visible = BLACK
-        B->>B: action_image = 1
-    end
+    Note over Scr,B: Setup when entering gameplay
+    Scr->>B: AR_GAME_BANG_SETUP
+    B->>B: clear bang[], visible = BLACK
+    B->>B: action_image = 1
 
-    rect rgb(245, 245, 245)
-        Note over M,B: Meteoroid creates Bang after collision
-        M->>B: set bang[i].visible = WHITE
-        M->>B: set bang[i].x/y at collision position
-        M->>B: set action_image = 1
-    end
+    Note over M,B: Meteoroid creates Bang after collision
+    M->>B: set bang[i].visible = WHITE
+    M->>B: set bang[i].x/y at collision position
+    M->>B: set action_image = 1
 
-    rect rgb(240, 255, 240)
-        Note over Scr,View: 70ms tick and animation
-        Scr->>B: AR_GAME_BANG_UPDATE
-        loop each visible Bang
-            B->>B: action_image++
-            alt action_image >= END
-                B->>B: visible = BLACK
-                B->>M: meteoroid[i].visible = WHITE
-            end
-        end
-        View-->>B: read bang[]
-        View->>View: draw current explosion frame
-    end
+    Note over Scr,View: 70ms tick and animation
+    Scr->>B: AR_GAME_BANG_UPDATE
+    B->>B: update each visible Bang frame
+    B->>B: action_image++
+    B->>B: hide Bang when animation reaches END
+    B->>M: show related Meteoroid after Bang ends
+    View-->>B: read bang[]
+    View->>View: draw current explosion frame
 
-    rect rgb(255, 245, 235)
-        Note over Scr,B: Reset on game over
-        Scr->>B: AR_GAME_BANG_RESET
-        B->>B: hide all bang[]
-    end
+    Note over Scr,B: Reset on game over
+    Scr->>B: AR_GAME_BANG_RESET
+    B->>B: hide all bang[]
 ```
 
 Tóm tắt:
@@ -408,36 +368,28 @@ sequenceDiagram
     participant M as Meteoroid state
     participant View as View render
 
-    rect rgb(235, 245, 255)
-        Note over Scr,B: Setup when entering gameplay
-        Scr->>B: AR_GAME_BORDER_SETUP
-        B->>B: x = 15, visible = WHITE
-    end
+    Note over Scr,B: Setup when entering gameplay
+    Scr->>B: AR_GAME_BORDER_SETUP
+    B->>B: x = 15, visible = WHITE
 
-    rect rgb(240, 255, 240)
-        Note over Scr,M: 70ms tick checks level and game over
-        Scr->>B: AR_GAME_LEVEL_UP
-        alt ar_game_score >= next_level_score
-            B->>B: meteoroid_speed++
-            B->>B: next_level_score += 300
-        end
+    Note over Scr,M: 70ms tick checks level and game over
+    Scr->>B: AR_GAME_LEVEL_UP
+    B->>B: check score threshold for level up
+    B->>B: meteoroid_speed++ when threshold is reached
+    B->>B: next_level_score += 300
 
-        Scr->>B: AR_GAME_CHECK_GAME_OVER
-        B-->>M: read meteoroid[i].x
-        alt meteoroid[i].x <= border.x - 3
-            B->>Scr: AR_GAME_RESET
-        end
+    Scr->>B: AR_GAME_CHECK_GAME_OVER
+    B-->>M: read meteoroid[i].x
+    B->>B: check Meteoroid against Border
+    B->>Scr: AR_GAME_RESET when Meteoroid crosses Border
 
-        View-->>B: read border
-        View-->>M: read meteoroid[i].y
-        View->>View: draw Border line and markers
-    end
+    View-->>B: read border
+    View-->>M: read meteoroid[i].y
+    View->>View: draw Border line and markers
 
-    rect rgb(255, 245, 235)
-        Note over Scr,B: Reset on game over
-        Scr->>B: AR_GAME_BORDER_RESET
-        B->>B: visible = BLACK
-    end
+    Note over Scr,B: Reset on game over
+    Scr->>B: AR_GAME_BORDER_RESET
+    B->>B: visible = BLACK
 ```
 
 Tóm tắt:
@@ -459,48 +411,36 @@ sequenceDiagram
     participant Buzz as Buzzer
     participant View as View render
 
-    rect rgb(235, 245, 255)
-        Note over Scr,M: Setup when entering gameplay
-        Scr->>M: AR_GAME_METEOROID_SETUP
-        M->>M: create 5 Meteoroids by lane
-        M->>M: x = random 130..168
-        M->>M: visible = WHITE, action_image = random
-    end
+    Note over Scr,M: Setup when entering gameplay
+    Scr->>M: AR_GAME_METEOROID_SETUP
+    M->>M: create 5 Meteoroids by lane
+    M->>M: x = random 130..168
+    M->>M: visible = WHITE, action_image = random
 
-    rect rgb(240, 255, 240)
-        Note over Scr,M: 70ms tick movement
-        Scr->>M: AR_GAME_METEOROID_RUN
-        loop each visible Meteoroid
-            M->>M: x -= meteoroid_speed
-            M->>M: action_image = next frame
-        end
-    end
+    Note over Scr,M: 70ms tick movement
+    Scr->>M: AR_GAME_METEOROID_RUN
+    M->>M: update each visible Meteoroid
+    M->>M: x -= meteoroid_speed
+    M->>M: action_image = next frame
 
-    rect rgb(245, 245, 245)
-        Note over Scr,Buzz: 70ms tick collision check
-        Scr->>M: AR_GAME_METEOROID_DETONATOR
-        M-->>A: read arrow[j].x/y/visible
-        alt Arrow hits Meteoroid
-            M->>M: hide current Meteoroid
-            M->>A: hide Arrow, reset x/y
-            M->>B: create Bang at collision position
-            M->>M: reset Meteoroid x/action_image
-            M->>M: ar_game_score += 10
-            M->>Buzz: BUZZER_SOUND_BANG
-        end
-    end
+    Note over Scr,Buzz: 70ms tick collision check
+    Scr->>M: AR_GAME_METEOROID_DETONATOR
+    M-->>A: read arrow[j].x/y/visible
+    M->>M: check Arrow-Meteoroid collision
+    M->>M: hide current Meteoroid after hit
+    M->>A: hide Arrow, reset x/y
+    M->>B: create Bang at collision position
+    M->>M: reset Meteoroid x/action_image
+    M->>M: ar_game_score += 10
+    M->>Buzz: BUZZER_SOUND_BANG
 
-    rect rgb(250, 250, 250)
-        Note over View,M: Render
-        View-->>M: read meteoroid[]
-        View->>View: draw Meteoroid bitmap by action_image
-    end
+    Note over View,M: Render
+    View-->>M: read meteoroid[]
+    View->>View: draw Meteoroid bitmap by action_image
 
-    rect rgb(255, 245, 235)
-        Note over Scr,M: Reset on game over
-        Scr->>M: AR_GAME_METEOROID_RESET
-        M->>M: hide all Meteoroids
-    end
+    Note over Scr,M: Reset on game over
+    Scr->>M: AR_GAME_METEOROID_RESET
+    M->>M: hide all Meteoroids
 ```
 
 Tóm tắt:
