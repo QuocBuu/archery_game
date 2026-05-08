@@ -47,20 +47,6 @@ void view_scr_game_over() {
 /*****************************************************************************/
 /* Handle - game over */
 /*****************************************************************************/
-void rank_ranking() {
-	if (gamescore.score_now > gamescore.score_1st) {
-		gamescore.score_3rd = gamescore.score_2nd;
-		gamescore.score_2nd = gamescore.score_1st;
-		gamescore.score_1st = gamescore.score_now;
-	}
-	else if (gamescore.score_now > gamescore.score_2nd) {
-		gamescore.score_3rd = gamescore.score_2nd;
-		gamescore.score_2nd = gamescore.score_now;
-	}
-	else if (gamescore.score_now > gamescore.score_3rd) {
-		gamescore.score_3rd = gamescore.score_now;
-	}
-}
 
 void scr_game_over_handle(ak_msg_t* msg) {
 	switch (msg->sig) {
@@ -69,17 +55,6 @@ void scr_game_over_handle(ak_msg_t* msg) {
 		// View render
 		view_render.initialize();
 		view_render_display_on();
-
-		uint32_t score_now = gamescore.score_now;
-
-		// Read score 1st, 2nd, 3rd
-		ar_game_score_read(&gamescore);
-
-		gamescore.score_now = score_now;
-
-		// Reorganize and save score once
-		rank_ranking();
-		ar_game_score_write(&gamescore);
 
 		// Timer show idle screen
 		timer_set(	AC_TASK_DISPLAY_ID, \
