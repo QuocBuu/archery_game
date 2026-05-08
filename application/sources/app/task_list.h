@@ -17,6 +17,7 @@ enum {
 	TASK_TIMER_TICK_ID,
 
 	/* APP TASKS */
+	AC_TASK_SYSTEM_ID,
 	AC_TASK_FW_ID,
 	AC_TASK_SHELL_ID,
 	AC_TASK_LIFE_ID,
@@ -61,6 +62,7 @@ enum {
  */
 /*****************************************************************************/
 /* APP TASKS */
+extern void task_system(ak_msg_t*);
 extern void task_fw(ak_msg_t*);
 extern void task_shell(ak_msg_t*);
 extern void task_life(ak_msg_t*);

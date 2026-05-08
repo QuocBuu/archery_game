@@ -1,6 +1,8 @@
 ##############################################################################
 # @author: GaoKong
 # @date:   05/2/2017
+# @modified by: BuuPQ
+# @modified date: 05/05/2026
 ##############################################################################
 #NOTE:
 # Learn Makefiles at https://makefiletutorial.com/
@@ -9,12 +11,18 @@
 # Utilitis define
 Print = @echo "~"
 
+# SOC, flash and RAM info
+SOC_NAME = STM32L151CBT6
+SOC_FLASH_BYTES = 131072 # 128KB
+SOC_SRAM_BYTES = 16384	 # 16KB
+FLASH_BASE_ADDR_VAL = 0x08000000
+
 # Name of build target ex: ak-base-kit-stm32l151-application.bin
-NAME_MODULE = ak-base-kit-stm32l151-application
+NAME_MODULE = archery-game
 PROJECT = $(NAME_MODULE)
 
 GCC_PATH			= $(HOME)/Workspace/Tools/gcc-arm-none-eabi-10.3-2021.10
-PROGRAMER_PATH		= $(HOME)/Workspace/Tools/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin
+PROGRAMER_PATH		= $(HOME)/Workspace/Tools/stm_programer/bin/
 OPENOCD_CFG_PATH	= /usr/local/share/openocd/scripts/board/stm32ldiscovery.cfg
 
 # App start address, that need sync with declare in linker file and interrupt vector table.
@@ -96,13 +104,58 @@ OBJNM		=	$(GCC_PATH)/bin/arm-none-eabi-nm
 ARM_GDB		=	$(GCC_PATH)/bin/arm-none-eabi-gdb-py
 ARM_SIZE	=	$(GCC_PATH)/bin/arm-none-eabi-size
 
+MEMORY_USAGE_BAR_WIDTH = 30
+FLASH_SECTION_FILTER = $$1==".isr_vector" || $$1==".text" || $$1==".ARM.exidx" || $$1==".init_array" || $$1==".fini_array" || $$1==".data"
+RAM_SECTION_FILTER = $$1==".data" || $$1==".bss" || $$1==".heap" || $$1==".non_clear_ram"
+
+define MEMORY_INFO_COLLECT
+	FLASH_USED=`$(ARM_SIZE) -A -d $(TARGET) | awk '$(FLASH_SECTION_FILTER) {sum += $$2} END {print sum+0}'`; \
+	RAM_USED=`$(ARM_SIZE) -A -d $(TARGET) | awk '$(RAM_SECTION_FILTER) {sum += $$2} END {print sum+0}'`; \
+	BOOT_RESERVED_BYTES=$$(( $(APP_START_ADDR_VAL) - $(FLASH_BASE_ADDR_VAL) )); \
+	APP_FLASH_BYTES=$$(( $(SOC_FLASH_BYTES) - $$BOOT_RESERVED_BYTES )); \
+	FLASH_REMAIN_BYTES=$$(( $$APP_FLASH_BYTES - $$FLASH_USED )); \
+	RAM_REMAIN_BYTES=$$(( $(SOC_SRAM_BYTES) - $$RAM_USED )); \
+	BOOT_END_ADDR=$$(( $(APP_START_ADDR_VAL) - 1 )); \
+	SOC_FLASH_END_ADDR=$$(( $(FLASH_BASE_ADDR_VAL) + $(SOC_FLASH_BYTES) - 1 )); \
+	FLASH_USED_PCT=`awk "BEGIN {printf \"%.2f\", ($$FLASH_USED * 100.0) / $$APP_FLASH_BYTES}"`; \
+	FLASH_REMAIN_PCT=`awk "BEGIN {printf \"%.2f\", ($$FLASH_REMAIN_BYTES * 100.0) / $$APP_FLASH_BYTES}"`; \
+	RAM_USED_PCT=`awk "BEGIN {printf \"%.2f\", ($$RAM_USED * 100.0) / $(SOC_SRAM_BYTES)}"`; \
+	RAM_REMAIN_PCT=`awk "BEGIN {printf \"%.2f\", ($$RAM_REMAIN_BYTES * 100.0) / $(SOC_SRAM_BYTES)}"`; \
+	FLASH_USED_BAR=`awk "BEGIN {printf \"%d\", ($$FLASH_USED * $(MEMORY_USAGE_BAR_WIDTH)) / $$APP_FLASH_BYTES}"`; \
+	FLASH_FREE_BAR=$$(( $(MEMORY_USAGE_BAR_WIDTH) - $$FLASH_USED_BAR )); \
+	RAM_USED_BAR=`awk "BEGIN {printf \"%d\", ($$RAM_USED * $(MEMORY_USAGE_BAR_WIDTH)) / $(SOC_SRAM_BYTES)}"`; \
+	RAM_FREE_BAR=$$(( $(MEMORY_USAGE_BAR_WIDTH) - $$RAM_USED_BAR )); \
+	FLASH_USED_BLOCKS=`printf "%*s" $$FLASH_USED_BAR | tr ' ' '#'`; \
+	FLASH_FREE_BLOCKS=`printf "%*s" $$FLASH_FREE_BAR | tr ' ' '-'`; \
+	RAM_USED_BLOCKS=`printf "%*s" $$RAM_USED_BAR | tr ' ' '#'`; \
+	RAM_FREE_BLOCKS=`printf "%*s" $$RAM_FREE_BAR | tr ' ' '-'`
+endef
+
+define MEMORY_INFO_PRINT
+	echo "SOC name: $(SOC_NAME)"; \
+	printf -- " - Boot/Reserved Flash : 0x%08X - 0x%08X (%d bytes)\n" $(FLASH_BASE_ADDR_VAL) $$BOOT_END_ADDR $$BOOT_RESERVED_BYTES; \
+	printf -- " - Application Flash   : 0x%08X - 0x%08X (%d bytes)\n" $(APP_START_ADDR_VAL) $$SOC_FLASH_END_ADDR $$APP_FLASH_BYTES; \
+	printf -- " - Flash info          : %d bytes / %d bytes\n" $$FLASH_USED $$APP_FLASH_BYTES; \
+	printf -- " - Flash usage         : [%s%s] %s%% used / %s%% free\n" "$$FLASH_USED_BLOCKS" "$$FLASH_FREE_BLOCKS" "$$FLASH_USED_PCT" "$$FLASH_REMAIN_PCT"; \
+	printf -- " - RAM info            : %d bytes / %d bytes\n" $$RAM_USED $(SOC_SRAM_BYTES); \
+	printf -- " - RAM usage           : [%s%s] %s%% used / %s%% free\n" "$$RAM_USED_BLOCKS" "$$RAM_FREE_BLOCKS" "$$RAM_USED_PCT" "$$RAM_REMAIN_PCT"
+endef
+
 # Set the compiler CPU/FPU options.
 # https://launchpadlibrarian.net/177524521/readme.txt
 CPU = -mthumb -march=armv7-m
 FPU = -mfloat-abi=soft
 
 # Interface option
-IF_OPTION +=	$(IF_LINK_OPTION)		\
+IF_OPTION +=	$(IF_LINK_OPTION)
+
+# Hardware option
+#Ver 2.1 (Oled 1.3" driver SH1106)
+#Ver 3.0 (Oled 1.54" driver SSD1309)
+
+HARDWARE_OPTION += \
+		-DSSD1309_DRIVER_EN \
+		-USH1106_DRIVER_EN
 
 # Console log compile option
 CONSOLE_OPTION +=			\
@@ -124,6 +177,7 @@ GENERAL_FLAGS +=			\
 		$(APP_ADDR_OPTION)	\
 		$(USB_OPTION)		\
 		$(IF_OPTION)		\
+		$(HARDWARE_OPTION)  \
 		-DUSE_STDPERIPH_DRIVER	\
 		-DSTM32L1XX_MD		\
 		-DSTM32L_PLATFORM	\
@@ -193,11 +247,11 @@ help:
 	$(Print) "             Note: This option is needed install ak-flash. Link download & install: https://github.com/ak-embedded-software/ak-flash"
 	$(Print) "             Example: make flash dev=/dev/ttyUSB0"
 	$(Print) "[make flash] burn firmware via st-link"
-	$(Print) "[make factory] burn factory firmware via st-link"
 	$(Print) "[make com dev=/dev/tty*] console AK Embedded Base Kit"
 	$(Print) "[make debug gdb=ddd] gdb debug using ddd"
 	$(Print) "[make debug] gdb debug"
 	$(Print) "[make clean] clean build project folder"
+	$(Print) "[make info] print SOC, flash and RAM usage"
 	$(Print) "[make asm] generate asm file"
 	$(Print) "[make sym] list symbol from objects file"
 
@@ -208,14 +262,6 @@ ifdef dev
 	ak-flash $(dev) $(TARGET:.axf=.bin) $(APP_START_ADDR_VAL)
 else
 	$(PROGRAMER_PATH)/STM32_Programmer.sh -c port=SWD -w $(TARGET:.axf=.bin) $(APP_START_ADDR_VAL) -rst
-endif
-
-.PHONY: factory
-factory:
-ifdef dev
-	ak-flash $(dev) ../resources/bin/ak-base-kit-stm32l151-application.bin $(APP_START_ADDR_VAL)
-else
-	$(PROGRAMER_PATH)/STM32_Programmer.sh -c port=SWD -w ../resources/bin/ak-base-kit-stm32l151-application.bin $(APP_START_ADDR_VAL) -rst
 endif
 
 .PHONY: com
@@ -241,6 +287,12 @@ endif
 clean:
 	$(Print) CLEAN $(OBJECTS_DIR) folder
 	@rm -rf $(OBJECTS_DIR)
+
+.PHONY: info
+info: $(TARGET)
+	@echo "Memory usage info for $(TARGET):"
+	@$(MEMORY_INFO_COLLECT); \
+	$(MEMORY_INFO_PRINT)
 
 asm: $(TARGET)
 	$(Print) disassemble-all $(<:.axf=.asm)

@@ -3,7 +3,6 @@
 /*****************************************************************************/
 /* Variable Declaration - Setting game */
 /*****************************************************************************/
-ar_game_setting_t settingdata;
 static uint8_t setting_location_chosse;
 
 /*****************************************************************************/
@@ -38,7 +37,7 @@ void view_scr_game_setting() {
 							AR_GAME_SETTING_CHOSSE_ICON_SIZE_W, \
 							AR_GAME_SETTING_CHOSSE_ICON_SIZE_H, \
 							WHITE);
-	if (settingdata.silent == 0) {
+	if (settingdata.silent == AR_GAME_SETTING_SILENT_OFF) {
 		view_render.drawBitmap(	109, 
 								AR_GAME_SETTING_FRAMES_AXIS_Y_1 + \
 								AR_GAME_SETTING_FRAMES_STEP*3-12, \
@@ -115,11 +114,8 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		// Chosse item arrdess 1
 		setting_location_chosse = SETTING_ITEM_ARRDESS_1;
 		// Read setting data
-		eeprom_read(	EEPROM_SETTING_START_ADDR, \
-						(uint8_t*)&settingdata, \
-						sizeof(settingdata));
-	}
-		break;
+		ar_game_setting_read(&settingdata);
+	} break;
 
 	case AC_DISPLAY_BUTTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_MODE_RELEASED\n");
@@ -128,55 +124,49 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		case SETTING_ITEM_ARRDESS_1: {
 			// Change arrow number
 			settingdata.num_arrow++;
-			if (settingdata.num_arrow > 5) {
-				settingdata.num_arrow = 1;
+			if (settingdata.num_arrow > AR_GAME_SETTING_NUM_ARROW_MAX) {
+				settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MIN;
 			}
-		}
-			break;
+		} break;
 
 		case SETTING_ITEM_ARRDESS_2: {
 			settingdata.meteoroid_speed++;
-			if (settingdata.meteoroid_speed > 5) { 
-				settingdata.meteoroid_speed = 1;
+			if (settingdata.meteoroid_speed > AR_GAME_SETTING_METEOROID_SPEED_MAX) { 
+				settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MIN;
 			}
-		}
-			break;
+		} break;
 
 		case SETTING_ITEM_ARRDESS_3: {
 			// Change meteoroid speed
 			settingdata.silent = !settingdata.silent;
 			BUZZER_Sleep(settingdata.silent);
-		}
-			break;
+		} break;
 
 		case SETTING_ITEM_ARRDESS_4: {
 			// Save change and exit
-			settingdata.arrow_speed = 5;
-			eeprom_write(	EEPROM_SETTING_START_ADDR, \
-							(uint8_t*)&settingdata, \
-							sizeof(settingdata));
+			settingdata.arrow_speed = AR_GAME_SETTING_ARROW_SPEED_DEFAULT;
+			ar_game_setting_write(&settingdata);
 			SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
-			BUZZER_PlayTones(tones_startup);
-		}
-			break;
+			BUZZER_PlaySound(BUZZER_SOUND_STARTUP);
+		} break;
 
-		default:
+		default: 
 			break;
 		}
-	}
-		BUZZER_PlayTones(tones_cc);
-		break;
+		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
+	} break;
 	
 	case AC_DISPLAY_BUTTON_UP_LONG_PRESSED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_LONG_PRESSED\n");
 		// Change data max
-		settingdata.num_arrow = 5;
-		settingdata.meteoroid_speed = 5;
-		settingdata.silent = 0;
-	}
+		settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MAX;
+		settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MAX;
+		settingdata.silent = AR_GAME_SETTING_SILENT_OFF;
+		
+		// Setting buzzer
 		BUZZER_Sleep(settingdata.silent);
-		BUZZER_PlayTones(tones_cc);
-		break;
+		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
+	} break;
 
 	case AC_DISPLAY_BUTTON_UP_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_RELEASED\n");
@@ -185,20 +175,20 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		if (setting_location_chosse == SETTING_ITEM_ARRDESS_0) { 
 			setting_location_chosse = SETTING_ITEM_ARRDESS_4;
 		}
-	}
-		BUZZER_PlayTones(tones_cc);
-		break;
+		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
+	} break;
 
 	case AC_DISPLAY_BUTTON_DOWN_LONG_PRESSED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_LONG_PRESSED\n");
 		// Change data min
-		settingdata.num_arrow = 1;
-		settingdata.meteoroid_speed = 1;
-		settingdata.silent = 1;
-	}
+		settingdata.num_arrow = AR_GAME_SETTING_NUM_ARROW_MIN;
+		settingdata.meteoroid_speed = AR_GAME_SETTING_METEOROID_SPEED_MIN;
+		settingdata.silent = AR_GAME_SETTING_SILENT_ON;
+		
+		// Setting buzzer
 		BUZZER_Sleep(settingdata.silent);
-		BUZZER_PlayTones(tones_cc);
-		break;
+		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
+	} break;
 
 	case AC_DISPLAY_BUTTON_DOWN_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_RELEASED\n");
@@ -207,9 +197,15 @@ void scr_game_setting_handle(ak_msg_t* msg) {
 		if (setting_location_chosse > SETTING_ITEM_ARRDESS_4) { 
 			setting_location_chosse = SETTING_ITEM_ARRDESS_1;
 		}
-	}
-		BUZZER_PlayTones(tones_cc);
-		break;
+		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
+	} break;
+
+	case AC_DISPLAY_SHOW_IDLE: {
+		APP_DBG_SIG("AC_DISPLAY_SHOW_IDLE\n");
+		timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE);
+		scr_idle_set_return_screen(scr_game_setting_handle, &scr_game_setting);
+		SCREEN_TRAN(scr_idle_handle, &scr_idle);
+	} break;
 
 	default:
 		break;

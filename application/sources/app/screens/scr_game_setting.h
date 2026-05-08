@@ -46,8 +46,6 @@
 #define AR_GAME_SETTING_FRAMES_SIZE_H			(13)
 #define AR_GAME_SETTING_FRAMES_SIZE_R			(3)
 
-extern ar_game_setting_t settingdata;
-
 extern view_dynamic_t dyn_view_item_game_setting;
 extern view_screen_t scr_game_setting;
 extern void scr_game_setting_handle(ak_msg_t* msg);

@@ -20,11 +20,14 @@
 #define SIZE_BITMAP_METEOROIDS_X    (20)
 #define SIZE_BITMAP_METEOROIDS_Y    (10)
 
-#define AXIS_Y_METEOROID_0          (2)
-#define AXIS_Y_METEOROID_1          (12)
-#define AXIS_Y_METEOROID_2          (22)
-#define AXIS_Y_METEOROID_3          (32)
-#define AXIS_Y_METEOROID_4          (42)
+#define AXIS_Y_METEOROID_START   (2)
+#define AXIS_Y_METEOROID_STEP    (10)
+enum {
+    AR_GAME_METEOROID_ACTION_IMAGE_1 = 1,
+    AR_GAME_METEOROID_ACTION_IMAGE_2,
+    AR_GAME_METEOROID_ACTION_IMAGE_3,
+    AR_GAME_METEOROID_ACTION_IMAGE_END
+};
 
 typedef struct {
     bool visible;

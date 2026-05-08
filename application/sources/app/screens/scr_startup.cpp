@@ -24,7 +24,7 @@ void view_scr_startup() {
 #define AK_LOGO_AXIS_X		(23)
 #define AK_LOGO_TEXT		(AK_LOGO_AXIS_X + 4)
 	/* ak logo */
-	BUZZER_PlayTones(tones_startup);
+	BUZZER_PlaySound(BUZZER_SOUND_STARTUP);
 	view_render.clear();
 	view_render.setTextSize(1);
 	view_render.setTextColor(WHITE);
@@ -51,28 +51,23 @@ void scr_startup_handle(ak_msg_t* msg) {
 		view_render.initialize();
 		view_render_display_on();
 		timer_set(	AC_TASK_DISPLAY_ID, \
-					AC_DISPLAY_SHOW_LOGO, \
+					AC_DISPLAY_SHOW_STARTUP_LOGO, \
 					AC_DISPLAY_STARTUP_INTERVAL, \
 					TIMER_ONE_SHOT);
 		// Read setting
-		eeprom_read(	EEPROM_SETTING_START_ADDR, \
-						(uint8_t*)&settingdata, \
-						sizeof(settingdata));
+		ar_game_setting_read(&settingdata);
 		BUZZER_Sleep(settingdata.silent);
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_MODE_RELEASED\n");
 		SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
-	}
-		break;
+	} break;
 
-	case AC_DISPLAY_SHOW_LOGO: {
-		APP_DBG_SIG("AC_DISPLAY_SHOW_LOGO\n");
+	case AC_DISPLAY_SHOW_STARTUP_LOGO: {
+		APP_DBG_SIG("AC_DISPLAY_SHOW_STARTUP_LOGO\n");
 		SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
-	}
-		break;
+	} break;
 
 	default:
 		break;

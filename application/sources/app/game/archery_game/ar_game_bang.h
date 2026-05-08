@@ -21,6 +21,13 @@
 #define SIZE_BITMAP_BANG_II_X    (10)
 #define SIZE_BITMAP_BANG_II_Y    (10)
 
+enum {
+    AR_GAME_BANG_ACTION_IMAGE_1 = 1,
+    AR_GAME_BANG_ACTION_IMAGE_2,
+    AR_GAME_BANG_ACTION_IMAGE_3,
+    AR_GAME_BANG_ACTION_IMAGE_END
+};
+
 typedef struct {
     bool visible;
     uint32_t x, y;

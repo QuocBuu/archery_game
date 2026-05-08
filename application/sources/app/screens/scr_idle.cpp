@@ -6,6 +6,7 @@
 using namespace std;
 
 #define MAX_BALL_DISPLAY	(16)
+#define BALL_MOVE_STEP		(2)
 
 class ball {
 	// rand from a to b
@@ -19,8 +20,8 @@ public:
 		axis_y = 1;
 		slope = (rand() % (31)) - 15;
 		radius = (rand() % (7)) + 6;
-		x = rand() % (LCD_WIDTH - radius);
-		y = rand() % (LCD_HEIGHT - radius);
+		x = radius + (rand() % (LCD_WIDTH - 2 * radius));
+		y = radius + (rand() % (LCD_HEIGHT - 2 * radius));
 	}
 
 	int distance(ball& __ball) {
@@ -41,30 +42,34 @@ public:
 
 	void moving() {
 		if( axis_x > 0) {
-			x = x + 2;
+			x = x + BALL_MOVE_STEP;
 		}
 		else {
-			x = x - 2;
+			x = x - BALL_MOVE_STEP;
 		}
 
 		if (axis_y > 0) {
-			y += 2 * atan(slope);
+			y += BALL_MOVE_STEP * atan(slope);
 		}
 		else {
-			y -= 2 * atan(slope);
+			y -= BALL_MOVE_STEP * atan(slope);
 		}
 
-		if (x > (LCD_WIDTH - radius) || x < radius) {
+		if (x > ((LCD_WIDTH - 1) - radius) || x < radius) {
 			axis_x = -axis_x;
 			if (x < radius) {
 				x = radius;
+			} else if (x > ((LCD_WIDTH - 1) - radius)) {
+				x = (LCD_WIDTH - 1) - radius;
 			}
 		}
 
-		if (y > (LCD_HEIGHT - radius) || y < radius ) {
+		if (y > ((LCD_HEIGHT - 1) - radius) || y < radius ) {
 			axis_y = -axis_y;
 			if (y < radius) {
 				y = radius;
+			} else if (y > ((LCD_HEIGHT - 1) - radius)) {
+				y = (LCD_HEIGHT - 1) - radius;
 			}
 		}
 	}
@@ -92,6 +97,20 @@ view_screen_t scr_idle = {
 
 vector<ball> v_idle_ball;
 int ball::total;
+static screen_f scr_idle_return_handle = scr_menu_game_handle;
+static view_screen_t* scr_idle_return_view = &scr_menu_game;
+
+void scr_idle_set_return_screen(screen_f handle, view_screen_t* screen) {
+	if (handle != (screen_f)0 && screen != VIEW_SCREEN_NULL) {
+		scr_idle_return_handle = handle;
+		scr_idle_return_view = screen;
+	}
+}
+
+static void scr_idle_return_screen() {
+	timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
+	SCREEN_TRAN(scr_idle_return_handle, scr_idle_return_view);
+}
 
 void view_scr_idle() {
 	for(ball _ball : v_idle_ball) {
@@ -112,26 +131,26 @@ void scr_idle_handle(ak_msg_t* msg) {
 			v_idle_ball.push_back(new_ball);
 		}
 
+		// Remove timer show idle screen 
+		timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE);
+
+		// Timer ball moving update
 		timer_set(AC_TASK_DISPLAY_ID, \
 				AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE, \
 				AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE_INTERAL, \
 				TIMER_PERIODIC);
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE: {
 		for (unsigned int i = 0; i < v_idle_ball.size(); i++) {
 			v_idle_ball[i].moving();
 		}
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_MODE_RELEASED\n");
-		timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
-		SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
-	}
-		break;
+		scr_idle_return_screen();
+	} break;
 
 	case AC_DISPLAY_BUTTON_UP_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_UP_RELEASED\n");
@@ -149,10 +168,9 @@ void scr_idle_handle(ak_msg_t* msg) {
 			v_idle_ball.push_back(new_ball);
 		}
 		else {
-			BUZZER_PlayTones(tones_3beep);
+			BUZZER_PlaySound(BUZZER_SOUND_3BEEP);
 		}
-	}
-		break;
+	} break;
 
 	case AC_DISPLAY_BUTTON_DOWN_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTTON_DOWN_RELEASED\n");
@@ -162,11 +180,9 @@ void scr_idle_handle(ak_msg_t* msg) {
 		}
 
 		if (v_idle_ball.empty()) {
-			timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
-			SCREEN_TRAN(scr_menu_game_handle, &scr_menu_game);
+			scr_idle_return_screen();
 		}
-	}
-		break;
+	} break;
 
 	default:
 		break;

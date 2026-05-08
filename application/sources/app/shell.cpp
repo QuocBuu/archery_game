@@ -39,7 +39,7 @@
 
 #include "led.h"
 #include "eeprom.h"
-#include "Adafruit_ssd1306syp.h"
+#include "Adafruit_oled_drv.h"
 #include "flash.h"
 
 /*****************************************************************************/
@@ -61,6 +61,7 @@ static char* str_parser_get_attr(uint8_t);
  */
 /*****************************************************************************/
 int32_t shell_reset(uint8_t* argv);
+int32_t shell_ver(uint8_t* argv);
 int32_t shell_help(uint8_t* argv);
 int32_t shell_reboot(uint8_t* argv);
 int32_t shell_ram(uint8_t* argv);
@@ -68,7 +69,10 @@ int32_t shell_fatal(uint8_t* argv);
 int32_t shell_eps(uint8_t* argv);
 int32_t shell_flash(uint8_t* argv);
 int32_t shell_lcd(uint8_t* argv);
+int32_t shell_dbg(uint8_t* argv);
 int32_t shell_boot(uint8_t* argv);
+int32_t shell_fwu(uint8_t* argv);
+int32_t shell_psv(uint8_t* argv);
 int32_t shell_buzzer(uint8_t* argv);
 
 /*****************************************************************************/
@@ -81,6 +85,7 @@ const cmd_line_t lgn_cmd_table[] = {
 	/* system command */
 	/*************************************************************************/
 	{(const int8_t*)"reset",	shell_reset,		(const int8_t*)"reset terminal"},
+	{(const int8_t*)"ver",		shell_ver,			(const int8_t*)"version info"},
 	{(const int8_t*)"help",		shell_help,			(const int8_t*)"help info"},
 	{(const int8_t*)"reboot",	shell_reboot,		(const int8_t*)"reboot"},
 	{(const int8_t*)"ram",		shell_ram,			(const int8_t*)"ram"},
@@ -89,7 +94,14 @@ const cmd_line_t lgn_cmd_table[] = {
 	{(const int8_t*)"flash",	shell_flash,		(const int8_t*)"flash"},
 	{(const int8_t*)"lcd",		shell_lcd,			(const int8_t*)"lcd"},
 	{(const int8_t*)"boot",		shell_boot,			(const int8_t*)"boot share"},
+	{(const int8_t*)"fwu",		shell_fwu,			(const int8_t*)"app burn firmware"},
+	{(const int8_t*)"psv",		shell_psv,			(const int8_t*)"psv"},
 	{(const int8_t*)"beep",		shell_buzzer,		(const int8_t*)"buzzer play tones"},
+
+	/*************************************************************************/
+	/* debug command */
+	/*************************************************************************/
+	{(const int8_t*)"dbg",		shell_dbg,			(const int8_t*)"dbg"},
 
 	/* End Of Table */
 	{(const int8_t*)0,(pf_cmd_func)0,(const int8_t*)0}
@@ -138,16 +150,49 @@ int32_t shell_reset(uint8_t* argv) {
 	return 0;
 }
 
+int32_t shell_ver(uint8_t* argv) {
+	(void)argv;
+
+	firmware_header_t firmware_header;
+	sys_ctrl_get_firmware_info(&firmware_header);
+
+	LOGIN_PRINT("Kernel version: %s\n", AK_VERSION);
+	LOGIN_PRINT("App version: %d.%d.%d.%d\n", app_info.version[0] \
+			, app_info.version[1] \
+			, app_info.version[2] \
+			, app_info.version[3]);
+	LOGIN_PRINT("Firmware checksum: %04x\n", firmware_header.checksum);
+	LOGIN_PRINT("Firmware length: %d\n", firmware_header.bin_len);
+
+	LOGIN_PRINT("\nSystem information:\n");
+	LOGIN_PRINT("\tFLASH used:\t%d bytes\n", system_info.flash_used);
+	LOGIN_PRINT("\tSRAM used:\t%d bytes\n", system_info.ram_used);
+	LOGIN_PRINT("\t\tdata init size:\t\t%d bytes\n", system_info.data_init_size);
+	LOGIN_PRINT("\t\tdata non_init size:\t%d bytes\n", system_info.data_non_init_size);
+	LOGIN_PRINT("\t\tstack avail:\t\t%d bytes\n", system_info.stack_avail);
+	LOGIN_PRINT("\t\theap avail:\t\t%d bytes\n", system_info.heap_avail);
+	LOGIN_PRINT("\t\tother:\t\t\t%d bytes\n", system_info.ram_other);
+	LOGIN_PRINT("\n");
+	LOGIN_PRINT("\tcpu clock:\t%d Hz\n", system_info.cpu_clock);
+	LOGIN_PRINT("\ttime tick:\t%d ms\n", system_info.tick);
+	LOGIN_PRINT("\tconsole:\t%d bps\n", system_info.console_baudrate);
+	LOGIN_PRINT("\n");
+	LOGIN_PRINT("\tVCC:\t%d mV\n", sys_ctr_get_vbat_voltage());
+	LOGIN_PRINT("\tTEMP:\t%d *C\n", sys_ctr_get_mcu_temperature());
+	LOGIN_PRINT("\n\n");
+	return 0;
+}
+
 int32_t shell_help(uint8_t* argv) {
 	uint32_t idx = 0;
 	switch (*(argv + 4)) {
-	default:
+	default: {
 		LOGIN_PRINT("\nCOMMANDS INFORMATION:\n\n");
 		while(lgn_cmd_table[idx].cmd != (const int8_t*)0) {
 			LOGIN_PRINT("%s\t-> %s\n\n", lgn_cmd_table[idx].cmd, lgn_cmd_table[idx].info);
 			idx++;
 		}
-		break;
+	} break;
 	}
 	return 0;
 }
@@ -312,7 +357,19 @@ int32_t shell_fatal(uint8_t* argv) {
 	}
 		break;
 
-	default:
+	default: {
+		LOGIN_PRINT("\n[HELP] fatal command options:\n");
+		LOGIN_PRINT("  t : test fatal log\n");
+		LOGIN_PRINT("  ! : infinite loop\n");
+		LOGIN_PRINT("  @ : infinite loop with interrupts disabled\n");
+		LOGIN_PRINT("  r : reset fatal log\n");
+		LOGIN_PRINT("  l : print fatal log\n");
+		LOGIN_PRINT("  m : print message log\n");
+		LOGIN_PRINT("  e : print exception log\n");
+		LOGIN_PRINT("  R : dump ram\n");
+		LOGIN_PRINT("  s : print stack usage\n");
+		LOGIN_PRINT("  c : print cpu register\n");
+	}
 		break;
 	}
 
@@ -365,7 +422,10 @@ int32_t shell_eps(uint8_t* argv) {
 		break;
 
 	default:
-		LOGIN_PRINT("unkown option !\n");
+		LOGIN_PRINT("\n[HELP] eps command options:\n");
+		LOGIN_PRINT("  r : erase whole eeprom\n");
+		LOGIN_PRINT("  d : dump eeprom with decimal format\n");
+		LOGIN_PRINT("  h : dump eeprom with hex format\n");
 		break;
 	}
 
@@ -438,7 +498,10 @@ int32_t shell_flash(uint8_t* argv) {
 		break;
 
 	default:
-		LOGIN_PRINT("unknow option\n");
+		LOGIN_PRINT("[HELP] flash command options:\n");
+		LOGIN_PRINT("  i : initialize flash\n");
+		LOGIN_PRINT("  d : dump flash with decimal format\n");
+		LOGIN_PRINT("  h : dump flash with hex format\n");
 		break;
 	}
 
@@ -518,7 +581,17 @@ int32_t shell_lcd(uint8_t* argv) {
 		break;
 
 	default:
-		LOGIN_PRINT("unknow option\n");
+		LOGIN_PRINT("[HELP] lcd command options:\n");
+		LOGIN_PRINT("  i : initialize lcd\n");
+		LOGIN_PRINT("  o : turn on lcd\n");
+		LOGIN_PRINT("  f : turn off lcd\n");
+		LOGIN_PRINT("  b : fill screen with black\n");
+		LOGIN_PRINT("  w : fill screen with white\n");
+		LOGIN_PRINT("  t : display ak logo\n");
+		LOGIN_PRINT("  r : clear screen\n");
+		LOGIN_PRINT("  a : print text with white color\n");
+		LOGIN_PRINT("  c : print text with black color\n");
+		LOGIN_PRINT("  p : draw pixels\n");
 		break;
 	}
 
@@ -554,6 +627,11 @@ int32_t shell_dbg(uint8_t* argv) {
 		break;
 
 	default: {
+		LOGIN_PRINT("\n[HELP] dbg command options:\n");
+		LOGIN_PRINT("  0 : no operation\n");
+		LOGIN_PRINT("  v : print battery voltage (vbat)\n");
+		LOGIN_PRINT("  t : print MCU temperature\n");
+		LOGIN_PRINT("  s : stop MCU\n");
 	}
 		break;
 	}
@@ -702,7 +780,13 @@ int32_t shell_ram(uint8_t* argv) {
 		break;
 
 	default: {
-		LOGIN_PRINT("unknown option\n");
+		/* help info */
+		LOGIN_PRINT("\n[HELP] ram command options:\n");
+		LOGIN_PRINT("  r : clear ram with 0\n");
+		LOGIN_PRINT("  d : dump ram with decimal format\n");
+		LOGIN_PRINT("  h : dump ram with hex format\n");
+		LOGIN_PRINT("  s : print stack usage\n");
+		LOGIN_PRINT("  c : print cpu register\n");
 	}
 		break;
 	}
@@ -769,10 +853,38 @@ int32_t shell_boot(uint8_t* argv) {
 	}
 		break;
 
-	default:
+	default: {
+		LOGIN_PRINT("\n[HELP] boot command options:\n");
+		LOGIN_PRINT("  i : print boot information\n");
+		LOGIN_PRINT("  r : reset boot information\n");
+		LOGIN_PRINT("  t : test bootloader jump (without actual jump, just set boot info for jump)\n");
+	}
 		break;
 	}
 
+	return 0;
+}
+
+int32_t shell_fwu(uint8_t* argv) {
+	(void)argv;
+	sys_boot_t sb;
+	sys_boot_get(&sb);
+
+	/* cmd update request */
+	sb.fw_app_cmd.cmd			= SYS_BOOT_CMD_UPDATE_REQ;
+	sb.fw_app_cmd.container		= SYS_BOOT_CONTAINER_DIRECTLY;
+	sb.fw_app_cmd.io_driver		= SYS_BOOT_IO_DRIVER_UART;
+	sb.fw_app_cmd.des_addr		= APP_START_ADDR;
+	sb.fw_app_cmd.src_addr		= 0;
+	sys_boot_set(&sb);
+
+	sys_ctrl_reset();
+	return 0;
+}
+
+int32_t shell_psv(uint8_t* argv) {
+	(void)argv;
+	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 	return 0;
 }
 
@@ -783,57 +895,87 @@ int32_t shell_buzzer(uint8_t* argv) {
 	}
 		break;
 
+	case '0': {
+		BUZZER_PlaySound(BUZZER_SOUND_CLICK);
+	}
+		break;
+
 	case '1': {
-		BUZZER_PlayTones(tones_cc);
+		BUZZER_PlaySound(BUZZER_SOUND_LETS_GO);
 	}
 		break;
 
 	case '2': {
-		BUZZER_PlayTones(tones_BUM);
+		BUZZER_PlaySound(BUZZER_SOUND_BANG);
 	}
 		break;
 
 	case '3': {
-		BUZZER_PlayTones(tones_USB_con);
+		BUZZER_PlaySound(BUZZER_SOUND_USB_CONNECTED);
 	}
 		break;
 
 	case '4': {
-		BUZZER_PlayTones(tones_USB_dis);
+		BUZZER_PlaySound(BUZZER_SOUND_USB_DISCONNECTED);
 	}
 		break;
 
 	case '5': {
-		BUZZER_PlayTones(tones_startup);
+		BUZZER_PlaySound(BUZZER_SOUND_STARTUP);
 	}
 		break;
 
 	case '6': {
-		BUZZER_PlayTones(tones_3beep);
+		BUZZER_PlaySound(BUZZER_SOUND_3BEEP);
 	}
 		break;
 
 	case '7': {
-		BUZZER_PlayTones(tones_SMB);
+		BUZZER_PlaySound(BUZZER_SOUND_SUPER_MARIO);
 	}
 		break;
 
 	case '8': {
-		BUZZER_PlayTones(tones_merryChristmas);
+		BUZZER_PlaySound(BUZZER_SOUND_MERRY_CHRISTMAS);
+	}
+		break;
+
+	case '9': {
+		BUZZER_PlaySound(BUZZER_SOUND_WELCOME);
+	}
+		break;
+
+	case 'a': {
+		BUZZER_PlaySound(BUZZER_SOUND_GOODBYE);
+	}
+		break;
+
+	case 'b': {
+		BUZZER_PlaySound(BUZZER_SOUND_HIGHSCORE);
+	}
+		break;
+
+	case 'c': {
+		BUZZER_PlaySound(BUZZER_SOUND_LOWSCORE);
 	}
 		break;
 
 	default:
 		LOGIN_PRINT("\n[HELP]\n");
 		LOGIN_PRINT("1. \"beep i\"                           : init buzzer play tones \n");
-		LOGIN_PRINT("2. \"beep 1\"                           : buzzer play tones cc \n");
-		LOGIN_PRINT("3. \"beep 2\"                           : buzzer play tones BUM \n");
-		LOGIN_PRINT("4. \"beep 3\"                           : buzzer play tones USB con \n");
-		LOGIN_PRINT("5. \"beep 4\"                           : buzzer play tones USB dis \n");
-		LOGIN_PRINT("6. \"beep 5\"                           : buzzer play tones startup \n");
-		LOGIN_PRINT("7. \"beep 6\"                           : buzzer play tones three beeps \n");
-		LOGIN_PRINT("8. \"beep 7\"                           : buzzer play tones super mario bros \n");
-		LOGIN_PRINT("9. \"beep 8\"                           : buzzer play tones merry chrismast \n");
+		LOGIN_PRINT("2. \"beep 0\"                           : buzzer play tones click \n");
+		LOGIN_PRINT("3. \"beep 1\"                           : buzzer play tones lets go \n");
+		LOGIN_PRINT("4. \"beep 2\"                           : buzzer play tones bang \n");
+		LOGIN_PRINT("5. \"beep 3\"                           : buzzer play tones USB connected \n");
+		LOGIN_PRINT("6. \"beep 4\"                           : buzzer play tones USB disconnected \n");
+		LOGIN_PRINT("7. \"beep 5\"                           : buzzer play tones startup \n");
+		LOGIN_PRINT("8. \"beep 6\"                           : buzzer play tones three beeps \n");
+		LOGIN_PRINT("9. \"beep 7\"                           : buzzer play tones super mario bros \n");
+		LOGIN_PRINT("10. \"beep 8\"                          : buzzer play tones merry christmas \n");
+		LOGIN_PRINT("11. \"beep 9\"                          : buzzer play tones welcome \n");
+		LOGIN_PRINT("12. \"beep a\"                          : buzzer play tones goodbye \n");
+		LOGIN_PRINT("13. \"beep b\"                          : buzzer play tones highscore \n");
+		LOGIN_PRINT("14. \"beep c\"                          : buzzer play tones lowscore \n");
 		break;
 	}
 

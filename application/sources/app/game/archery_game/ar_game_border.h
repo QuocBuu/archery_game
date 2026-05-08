@@ -17,8 +17,13 @@
 #include "scr_archery_game.h"
 
 #define AXIS_X_BORDER           (15)
-#define AXIS_Y_BORDER_ON        (2)
-#define AXIS_Y_BORDER_UNDER     (52)
+#define AXIS_Y_BORDER_ON        (0)
+#define AXIS_Y_BORDER_UNDER     (54)
+
+enum {
+    AR_GAME_BORDER_ACTION_IMAGE_1 = 1,
+    AR_GAME_BORDER_ACTION_IMAGE_END
+};
 
 typedef struct {
     bool visible;

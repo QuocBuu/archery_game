@@ -1,12 +1,47 @@
 #include "scr_archery_game.h"
 
+#include <stdlib.h>
+
 #include "screens.h"
 
 /*****************************************************************************/
 /* Variable Declaration - Archery game screen */
 /*****************************************************************************/
+#define AR_GAME_COMMAND_TEXT_MAX_LEN		(10)
+#define AR_GAME_HIGHSCORE_SCORE				(300)
+#define AR_GAME_ARRAY_SIZE(arr)				(sizeof(arr) / sizeof((arr)[0]))
+
 uint8_t ar_game_state; 
 ar_game_setting_t settingsetup;
+static uint8_t ar_game_over_text_index = 0;
+
+static const char* ar_game_over_text = " Too Bad!";
+static const char* const ar_game_praise_text[] = {
+    "Excellent",  // 9
+    "Good Job!",  // 9
+    "  Great!",   // 8
+    " Amazing!",  // 9
+    " Winner!"    // 8
+};
+
+static const char* const ar_game_blame_text[] = {
+    " Too Bad!",  // 9
+    " Try More",  // 9
+    " Missed!",   // 8
+    "  Oops!",    // 6
+    " So Close"   // 9
+};
+
+static const char* ar_game_random_text(const char* const* text_list, uint8_t text_count) {
+	return text_list[rand() % text_count];
+}
+
+static void ar_game_print_text_partial(const char* text, uint8_t max_chars) {
+	if (text == NULL) return;
+	for (uint8_t i = 0; i < max_chars && text[i] != '\0'; i++) {
+		view_render.print(text[i]);
+	}
+}
 
 /*****************************************************************************/
 /* View - Archery game screen*/
@@ -26,21 +61,23 @@ void ar_game_frame_display() {
 }
 
 void ar_game_archery_display() {
-	if (archery.visible == WHITE && settingsetup.num_arrow != 0) {
-		view_render.drawBitmap(	archery.x, \
-								archery.y - 10, \
-								bitmap_archery_I, \
-								SIZE_BITMAP_ARCHERY_X, \
-								SIZE_BITMAP_ARCHERY_Y, \
-								WHITE);
-	}
-	else if (archery.visible == WHITE && settingsetup.num_arrow == 0) {
-		view_render.drawBitmap(	archery.x, \
-								archery.y - 10, \
-								bitmap_archery_II, \
-								SIZE_BITMAP_ARCHERY_X, \
-								SIZE_BITMAP_ARCHERY_Y, \
-								WHITE);
+	if (archery.visible == WHITE) {
+		if (archery.action_image == AR_GAME_ARCHERY_ACTION_IMAGE_1) {
+			view_render.drawBitmap(	archery.x, \
+					archery.y - 10, \
+					bitmap_archery_I, \
+					SIZE_BITMAP_ARCHERY_X, \
+					SIZE_BITMAP_ARCHERY_Y, \
+					WHITE);
+		}
+		else if (archery.action_image == AR_GAME_ARCHERY_ACTION_IMAGE_2) {
+			view_render.drawBitmap(	archery.x, \
+					archery.y - 10, \
+					bitmap_archery_II, \
+					SIZE_BITMAP_ARCHERY_X, \
+					SIZE_BITMAP_ARCHERY_Y, \
+					WHITE);
+		}
 	}
 }
 
@@ -60,7 +97,7 @@ void ar_game_arrow_display() {
 void ar_game_meteoroid_display() {
 	for (uint8_t i = 0; i < NUM_METEOROIDS; i++) {
 		if (meteoroid[i].visible == WHITE) {
-			if (meteoroid[i].action_image == 1) {
+			if (meteoroid[i].action_image == AR_GAME_METEOROID_ACTION_IMAGE_1) {
 				view_render.drawBitmap(	meteoroid[i].x, \
 										meteoroid[i].y, \
 										bitmap_meteoroid_I, \
@@ -68,7 +105,7 @@ void ar_game_meteoroid_display() {
 										SIZE_BITMAP_METEOROIDS_Y, \
 				 						WHITE);
 			}
-			else if (meteoroid[i].action_image == 2) {
+			else if (meteoroid[i].action_image == AR_GAME_METEOROID_ACTION_IMAGE_2) {
 				view_render.drawBitmap(	meteoroid[i].x, \
 										meteoroid[i].y, \
 										bitmap_meteoroid_II, \
@@ -76,7 +113,7 @@ void ar_game_meteoroid_display() {
 										SIZE_BITMAP_METEOROIDS_Y, \
 										WHITE);
 			}
-			else if (meteoroid[i].action_image == 3) {
+			else if (meteoroid[i].action_image == AR_GAME_METEOROID_ACTION_IMAGE_3) {
 				view_render.drawBitmap(	meteoroid[i].x, \
 										meteoroid[i].y, \
 										bitmap_meteoroid_III, \
@@ -91,7 +128,7 @@ void ar_game_meteoroid_display() {
 void ar_game_bang_display() {
 	for (uint8_t i = 0; i < NUM_BANG; i++) {
 		if (bang[i].visible == WHITE) {
-			if (bang[i].action_image == 1) {
+			if (bang[i].action_image == AR_GAME_BANG_ACTION_IMAGE_1) {
 				view_render.drawBitmap(	bang[i].x, \
 										bang[i].y, \
 										bitmap_bang_I, \
@@ -99,7 +136,7 @@ void ar_game_bang_display() {
 										SIZE_BITMAP_BANG_I_Y, \
 										WHITE);
 			}
-			else if (bang[i].action_image == 2) {
+			else if (bang[i].action_image == AR_GAME_BANG_ACTION_IMAGE_2) {
 				view_render.drawBitmap(	bang[i].x, \
 										bang[i].y, \
 										bitmap_bang_II, \
@@ -107,7 +144,7 @@ void ar_game_bang_display() {
 										SIZE_BITMAP_BANG_I_Y, \
 				 						WHITE);
 			}
-			else if (bang[i].action_image == 3) {
+			else if (bang[i].action_image == AR_GAME_BANG_ACTION_IMAGE_3) {
 				view_render.drawBitmap( bang[i].x + 2, \
 										bang[i].y - 1, \
 										bitmap_bang_III, \
@@ -162,42 +199,45 @@ void view_scr_archery_game() {
 	}
 	else if (ar_game_state == GAME_OVER) {
 		view_render.clear();
-		view_render.setTextSize(2);
+		view_render.drawBitmap(	0, \
+			0, \
+			bitmap_dolphin, \
+			119, \
+			62, \
+			WHITE);
+		
+		view_render.setTextSize(1);
 		view_render.setTextColor(WHITE);
-		view_render.setCursor(17, 24);
-		view_render.print("YOU LOSE");
+		view_render.setCursor(74, 15);
+		ar_game_print_text_partial(ar_game_over_text, ar_game_over_text_index);
 	}
 }
 
 /*****************************************************************************/
 /* Handle - Archery game screen */
 /*****************************************************************************/
-void ar_game_level_setup() {
-	eeprom_read(	EEPROM_SETTING_START_ADDR, \
-					(uint8_t*)&settingsetup, \
-					sizeof(settingsetup));
-}
-
-void ar_game_time_tick_setup() {
-	timer_set(	AC_TASK_DISPLAY_ID, \
-				AR_GAME_TIME_TICK, \
-				AR_GAME_TIME_TICK_INTERVAL, \
-				TIMER_PERIODIC);
-}
-
-void ar_game_save_and_reset_score() {
-	eeprom_write(	EEPROM_SCORE_PLAY_ADDR, \
-					(uint8_t*)&ar_game_score, \
-					sizeof(ar_game_score));
-	ar_game_score = 10;
+void rank_ranking() {
+	if (gamescore.score_now > gamescore.score_1st) {
+		gamescore.score_3rd = gamescore.score_2nd;
+		gamescore.score_2nd = gamescore.score_1st;
+		gamescore.score_1st = gamescore.score_now;
+	}
+	else if (gamescore.score_now > gamescore.score_2nd) {
+		gamescore.score_3rd = gamescore.score_2nd;
+		gamescore.score_2nd = gamescore.score_now;
+	}
+	else if (gamescore.score_now > gamescore.score_3rd) {
+		gamescore.score_3rd = gamescore.score_now;
+	}
 }
 
 void scr_archery_game_handle(ak_msg_t* msg) {
 	switch (msg->sig) {
 	case SCREEN_ENTRY: {
 		APP_DBG_SIG("SCREEN_ENTRY\n");
-		// Level setup
-		ar_game_level_setup();
+		// Get setting data
+		ar_game_setting_read(&settingsetup);
+
 		// Setup game Object
 		task_post_pure_msg(AR_GAME_ARCHERY_ID, 	 	AR_GAME_ARCHERY_SETUP);
 		task_post_pure_msg(AR_GAME_ARROW_ID, 	 	AR_GAME_ARROW_SETUP);
@@ -205,11 +245,13 @@ void scr_archery_game_handle(ak_msg_t* msg) {
 		task_post_pure_msg(AR_GAME_BANG_ID, 	 	AR_GAME_BANG_SETUP);
 		task_post_pure_msg(AR_GAME_BORDER_ID, 	 	AR_GAME_BORDER_SETUP);
 		// Setup timer
-		ar_game_time_tick_setup();
+		timer_set(	AC_TASK_DISPLAY_ID, \
+					AR_GAME_TIME_TICK, \
+					AR_GAME_TIME_TICK_INTERVAL, \
+					TIMER_PERIODIC);
 		// State update
 		ar_game_state = GAME_PLAY;
-	}
-		break;
+	} break;
 
 	case AR_GAME_TIME_TICK: {
 		APP_DBG_SIG("AR_GAME_TIME_TICK\n");
@@ -221,38 +263,79 @@ void scr_archery_game_handle(ak_msg_t* msg) {
 		task_post_pure_msg(AR_GAME_BANG_ID, 		AR_GAME_BANG_UPDATE);
 		task_post_pure_msg(AR_GAME_BORDER_ID, 		AR_GAME_LEVEL_UP);
 		task_post_pure_msg(AR_GAME_BORDER_ID, 		AR_GAME_CHECK_GAME_OVER);
-	}
-		break;
+	} break;
 
 	case AR_GAME_RESET: {
 		APP_DBG_SIG("AR_GAME_RESET\n");
+   
+		// Stop timer tick
+		timer_remove_attr(AC_TASK_DISPLAY_ID, AR_GAME_TIME_TICK);
+
 		// Reset game Object
 		task_post_pure_msg(AR_GAME_ARCHERY_ID, 		AR_GAME_ARCHERY_RESET);
 		task_post_pure_msg(AR_GAME_ARROW_ID, 		AR_GAME_ARROW_RESET);
 		task_post_pure_msg(AR_GAME_METEOROID_ID,	AR_GAME_METEOROID_RESET);
 		task_post_pure_msg(AR_GAME_BANG_ID, 		AR_GAME_BANG_RESET);
 		task_post_pure_msg(AR_GAME_BORDER_ID, 		AR_GAME_BORDER_RESET);
+
+		// Reset text animation index
+		ar_game_over_text_index = 0;
+
 		// Timer Exit
 		timer_set(	AC_TASK_DISPLAY_ID, \
 					AR_GAME_EXIT_GAME, \
 					AR_GAME_TIME_EXIT_INTERVAL, \
 					TIMER_ONE_SHOT);
+
 		// Save and reset Score
-		ar_game_save_and_reset_score();
+		ar_game_score_read(&gamescore);
+		gamescore.score_now = ar_game_score;
+		rank_ranking();
+		ar_game_score_write(&gamescore);
+		ar_game_score = 10;
+
+		// Setup text animation timer
+		timer_set(	AC_TASK_DISPLAY_ID, \
+					AR_GAME_OVER_TEXT_ANIM_TICK, \
+					AR_GAME_OVER_TEXT_ANIM_TICK_INTERVAL, \
+					TIMER_PERIODIC);
+
+		if (gamescore.score_now > AR_GAME_HIGHSCORE_SCORE) {
+			ar_game_over_text = ar_game_random_text(ar_game_praise_text, \
+													AR_GAME_ARRAY_SIZE(ar_game_praise_text));
+			BUZZER_PlaySound(BUZZER_SOUND_HIGHSCORE);
+		}
+		else {
+			ar_game_over_text = ar_game_random_text(ar_game_blame_text, \
+													AR_GAME_ARRAY_SIZE(ar_game_blame_text));
+			BUZZER_PlaySound(BUZZER_SOUND_LOWSCORE);
+		}
+
 		// State update
 		ar_game_state = GAME_OVER;
-	}
-		BUZZER_PlayTones(tones_3beep);
-		break;
+	} break;
+
+	case AR_GAME_OVER_TEXT_ANIM_TICK: {
+		APP_DBG_SIG("AR_GAME_OVER_TEXT_ANIM_TICK\n");
+		if (ar_game_over_text_index < AR_GAME_COMMAND_TEXT_MAX_LEN) {
+			ar_game_over_text_index++;
+		}
+		else {
+			timer_remove_attr(AC_TASK_DISPLAY_ID, AR_GAME_OVER_TEXT_ANIM_TICK);
+		}
+	} break;
 
 	case AR_GAME_EXIT_GAME: {
 		APP_DBG_SIG("AR_GAME_EXIT_GAME\n");
+
+		// Stop text animation timer
+		timer_remove_attr(AC_TASK_DISPLAY_ID, AR_GAME_OVER_TEXT_ANIM_TICK);
+
 		// State update
 		ar_game_state = GAME_OFF;
 		// Change the screen
-		SCREEN_TRAN(scr_game_over_handle, &scr_game_over);		
-	}
-		break;
+		SCREEN_TRAN(scr_game_over_handle, &scr_game_over);
+	} break;
 
 	default:
 		break;
