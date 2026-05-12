@@ -63,11 +63,11 @@ The game starts with the **Menu game** screen with the following options:
   - **Charts:** go to view the leaderboard.
   - **Home:** back to the game menu.
 
-<p align="center"><img src="resources/images/screens/scr_game_over_2_4x.png" alt="archery game over screen" width="480"/></p>
-<p align="center"><strong><em>Figure 5:</em></strong> Game_over screen</p>
+<p align="center"><img src="resources/images/screens/game_over_dophin_x4.png" alt="archery game over screen 1" width="480"/></p>
+<p align="center"><strong><em>Figure 5:</em></strong> Game_over screen 1</p>
 
-<p align="center"><img src="resources/images/screens/game_over_dophin_x4.png" alt="archery game over dolphin screen" width="480"/></p>
-<p align="center"><strong><em>Figure 6:</em></strong> Game_over dolphin screen</p>
+<p align="center"><img src="resources/images/screens/scr_game_over_2_4x.png" alt="archery game over screen 2" width="480"/></p>
+<p align="center"><strong><em>Figure 6:</em></strong> Game_over screen 2</p>
 
 ## II. Documentation
 
