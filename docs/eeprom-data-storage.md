@@ -1,4 +1,4 @@
-# Data Setting EEPROM
+# EEPROM Data Storage
 
 This document describes how Archery Game stores persistent data in EEPROM, including game settings and score data.
 

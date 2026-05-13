@@ -1,10 +1,25 @@
 # Archery Game - Build on AK Embedded Base Kit
 
-<p align="center"><img src="resources/images/epcb_archery_game.webp" alt="EPCB Archery Game" width="100%"/></p>
+<table>
+  <tr>
+    <td align="center"><img src="resources/images/board/archery_game_programming.png" alt="EPCB Archery Game" width="100%"/></td>
+  </tr>
+</table>
 
 <div align="center">
     <video src="https://github.com/ak-embedded-software/archery-game/assets/54855481/d493703c-bf5b-4fd2-ae04-b86784a01231" alt="epcb archery game" height=200/>
 </div>
+
+## Documentation
+
+| File | Description |
+|---|---|
+| [README.md](README.md) | Main project overview, hardware information, gameplay rules, and object descriptions. |
+| [docs/runtime-signal-processing.md](docs/runtime-signal-processing.md) | Runtime signal-processing flow for button input, AK task messages, timers, game-loop ticks, object updates, and Mermaid sequence diagrams. |
+| [docs/eeprom-data-storage.md](docs/eeprom-data-storage.md) | EEPROM storage layout for game settings and scores, including magic-number validation, checksum protection, read/write flow, and related APIs. |
+| [docs/game-object-sequences.md](docs/game-object-sequences.md) | Runtime sequence diagrams for gameplay objects: Archery, Arrow, Meteoroid, Bang, and Border. |
+| [docs/display-design.md](docs/display-design.md) | Display design notes for screen layout, bitmap assets, rendering flow, and screen transitions. |
+| [docs/buzzer-audio.md](docs/buzzer-audio.md) | Buzzer and audio behavior notes for sound effects, silent mode, playback timing, and related APIs. |
 
 ## I. Introduction
 
@@ -12,19 +27,64 @@ The Archery game is a game running on the AK Embedded Base Kit. It is built to h
 
 ### 1.1 Hardware
 
-<p align="center"><img src="resources/images/ak-embedded-base-kit-version-3.jpg" alt="AK Embedded Base Kit - STM32L151 - v3.0" width="480"/></p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="resources/images/board/ak-embedded-base-kit-version-3.jpg" alt="AK Embedded Base Kit - STM32L151 - v3.0" width="480"/></td>
+  </tr>
+</table>
 <p align="center"><strong><em>Figure 1:</em></strong> AK Embedded Base Kit - STM32L151</p>
 
 [AK Embedded Base Kit](https://epcb.vn/products/ak-embedded-base-kit-lap-trinh-nhung-vi-dieu-khien-mcu) is an evaluation kit for advanced embedded software learners.
 
-The KIT integrates an **OLED 1.3" LCD, 3 buttons, and a Buzzer speaker**, with these features sufficient to learn the event-driven system through practical game design.
+The KIT integrates **1.54" Oled LCD**, **3 push buttons**, and **1 Buzzers** that play music, to learn **the event-driven system** through hands-on game machine design.
+The KIT also integrates **RS485**, **Qwiic Connect System**, and **Grove Ecosystems**, suitable for prototyping practical applications in embedded systems.
 
-The KIT also integrates **RS485, NRF24L01+, and Flash up to 32MB**, suitable for prototyping real-world applications in embedded systems such as wired, wireless communication, data logger storage applications,...
+#### 1.1.1 MCU Overview
+
+```text
+SoC Name : STM32L151CBT6
+RAM      : 16 KB
+
+Flash Partitions Layout
+----------------------
+[ 0x08000000 - 0x08001FFF ] : Bootloader Partition (8 KB)
+=> AK Bootloader
+
+[ 0x08002000 - 0x08002FFF ] : BSF Shared Partition (4 KB)
+=> Used for data sharing between Bootloader and Application
+
+[ 0x08003000 - 0x0801FFFF ] : Application Partition (116 KB)
+=> Archery Game firmware
+```
+
+SoC name breakdown:
+
+| Part | Meaning |
+|---|---|
+| `STM32` | STMicroelectronics 32-bit MCU family. |
+| `L` | Low-power series. |
+| `151` | STM32L151 product line. |
+| `C` | 48-pin package. |
+| `B` | 128 KB Flash memory. |
+| `T` | LQFP package. |
+| `6` | Industrial temperature grade. |
+
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="resources/images/board/board-view-top-bottom.png" alt="AK Embedded Base Kit - Board view Top + Bottom" width="900"/></td>
+  </tr>
+</table>
+<p align="center"><strong><em>Figure 2:</em></strong> Board view Top + Bottom </p>
 
 ### 1.2 Game Description and Objects
 The following description of the **“Archery game”**, explains how to play and the game's processing mechanism. This document is used for reference in designing and developing the game later.
 
-<p align="center"><img src="resources/images/screens/gif_archery_game_menu_4x.gif" alt="menu game" width="480"/></p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="resources/images/screens/gif_archery_game_menu_4x.gif" alt="menu game" width="480"/></td>
+  </tr>
+</table>
 <p align="center"><strong><em>Figure 2:</em></strong> Menu game</p>
 
 The game starts with the **Menu game** screen with the following options:
@@ -33,7 +93,11 @@ The game starts with the **Menu game** screen with the following options:
 - **Charts:** Select to view the top 3 highest scores.
 - **Exit:** Exit the menu to the standby screen.
 
-<p align="center"><img src="resources/images/screens/objects_in_the_game.webp" alt="archery game play screen" width="600"/></p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="resources/images/screens/objects_in_the_game.webp" alt="archery game play screen" width="600"/></td>
+  </tr>
+</table>
 <p align="center"><strong><em>Figure 3:</em></strong> Game play screen and objects</p>
 
 #### 1.2.1 Objects in the Game:
@@ -63,27 +127,46 @@ The game starts with the **Menu game** screen with the following options:
   - **Charts:** go to view the leaderboard.
   - **Home:** back to the game menu.
 
-<p align="center"><img src="resources/images/screens/game_over_dophin_x4.png" alt="archery game over screen 1" width="480"/></p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="resources/images/screens/gif_game_over_x4.gif" alt="archery game over screen 1" width="480"/></td>
+  </tr>
+</table>
 <p align="center"><strong><em>Figure 5:</em></strong> Game_over screen 1</p>
 
-<p align="center"><img src="resources/images/screens/scr_game_over_2_4x.png" alt="archery game over screen 2" width="480"/></p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="resources/images/screens/scr_game_over_2_4x.png" alt="archery game over screen 2" width="480"/></td>
+  </tr>
+</table>
 <p align="center"><strong><em>Figure 6:</em></strong> Game_over screen 2</p>
 
-## II. Documentation
+### 1.3 Basic Game Sequence Logic
 
-| File | Description |
-|---|---|
-| [README.md](README.md) | Main project overview, hardware information, gameplay rules, and object descriptions. |
-| [docs/Archery_Game_Signal_Processing.md](docs/Archery_Game_Signal_Processing.md) | Detailed signal-processing document for button input, AK task messages, timers, game-loop ticks, object updates, and Mermaid sequence diagrams. |
-| [docs/Data_setting_eeprom.md](docs/Data_setting_eeprom.md) | EEPROM data document describing game setting and score storage, Magic number validation, checksum protection, read/write flow, and related APIs. |
-| [docs/Object_Sequence.md](docs/Object_Sequence.md) | Sequence document for each gameplay object: Archery, Arrow, Meteoroid, Bang, and Border. |
-| [docs/design_game_display.md](docs/design_game_display.md) | TODO document for display layout, screen design, bitmap assets, rendering flow, and screen transitions. |
-| [docs/buzzer_music.md](docs/buzzer_music.md) | TODO document for buzzer sound list, music behavior, silent mode, and playback rules. |
+<table align="center">
+    <td align="center">For a more detailed sequence flow, see <a href="docs/runtime-signal-processing.md">Runtime Signal Processing</a>.</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="resources/images/sequence_object/basic_archery_game_sequence_logic.png" alt="basic archery game sequence logic" width="720"/></td>
+  </tr>
+  <tr>
+</table>
+<p align="center"><strong><em>Figure 4:</em></strong> Basic game sequence logic</p>
 
 ## Contact & Support
+**Phan Quoc Buu** - Embedded Software Engineer <br/>
+``` Note
+Thank you for visiting this repository.  
+If you have any questions, suggestions, or feedback about this project or firmware development, feel free to contact me directly
+```
 
-LinkedIn: [www.linkedin.com/in/quocbuu](https://www.linkedin.com/in/quocbuu)
-
-Mail: [pquocbuu@gmail.com](mailto:pquocbuu@gmail.com)
-
-Phone: 0931993857
+**My contact:** <br/>
+<a href="https://github.com/QuocBuu">
+  <img src="https://img.shields.io/badge/GitHub-QuocBuu-181717?style=flat&logo=github&logoColor=white"/>
+</a>
+<a href="https://www.linkedin.com/in/phan-quoc-buu-549336321">
+  <img src="https://img.shields.io/badge/LinkedIn-Phan%20Quoc%20Buu-0A66C2?style=flat&logo=linkedin&logoColor=white"/>
+</a>
+<a href="mailto:pquocbuu@gmail.com">
+  <img src="https://img.shields.io/badge/Gmail-pquocbuu%40gmail.com-EA4335?style=flat&logo=gmail&logoColor=white"/>
+</a>

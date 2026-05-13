@@ -1,4 +1,4 @@
-# Buzzer Music
+# Buzzer Audio
 
 TODO: Add buzzer and music documentation for Archery Game.
 
@@ -10,4 +10,3 @@ Planned content:
 - Silent mode behavior from game settings.
 - Music/sound source files and APIs.
 - Timing and priority rules for sound playback.
-

@@ -1,4 +1,4 @@
-# Design Game Display
+# Display Design
 
 TODO: Add display design documentation for Archery Game.
 
@@ -10,4 +10,3 @@ Planned content:
 - Bitmap and animation assets used by each screen.
 - Render flow and related source files.
 - Display update timing and screen transition behavior.
-
