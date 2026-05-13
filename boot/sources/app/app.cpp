@@ -221,6 +221,7 @@ int boot_main() {
 		 */
 		uint32_t internal_flash_checksum_cal = 0;
 		for (uint32_t index = 0; index < app_sys_boot.update_fw_app_header.bin_len; index += sizeof(uint32_t)) {
+			sys_ctrl_independent_watchdog_reset();
 			internal_flash_checksum_cal += *((uint32_t*)(app_sys_boot.fw_app_cmd.des_addr + index));
 		}
 
@@ -365,6 +366,7 @@ void uart_boot_cmd_update_res(void* boot_obj) {
 		 * erase application internal flash, prepare for new firmware
 		 */
 		for (uint32_t index = 0; index < page_number; index++) {
+			sys_ctrl_independent_watchdog_reset();
 			flash_erase_addr = app_sys_boot.fw_app_cmd.des_addr + (index * 256);
 			FLASH_ErasePage(flash_erase_addr);
 			memcpy(uart_boot_data_cmd_res.data, &flash_erase_addr, sizeof(uint32_t));
@@ -451,6 +453,7 @@ void uart_boot_cmd_checksum_fw_res(void*) {
 	uint32_t end_of_flash =  app_sys_boot.fw_app_cmd.des_addr + app_sys_boot.update_fw_app_header.bin_len;
 
 	for (uint32_t index = app_sys_boot.fw_app_cmd.des_addr; index <= end_of_flash; index += sizeof(uint32_t)) {
+		sys_ctrl_independent_watchdog_reset();
 		check_sum_cal += *((uint32_t*)index);
 	}
 

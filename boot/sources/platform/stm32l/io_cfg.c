@@ -370,6 +370,7 @@ void erase_internal_flash(uint32_t address, uint32_t len) {
 	}
 
 	for (index = 0; index < page_number; index++) {
+		sys_ctrl_independent_watchdog_reset();
 		FLASH_ErasePage(address + (index * 256));
 	}
 }
@@ -395,6 +396,7 @@ void internal_flash_erase_pages_cal(uint32_t address, uint32_t len) {
 	}
 
 	for (index = 0; index < page_number; index++) {
+		sys_ctrl_independent_watchdog_reset();
 		FLASH_ErasePage(address + (index * 256));
 	}
 }
