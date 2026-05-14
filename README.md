@@ -1,11 +1,5 @@
 <h1 align="center">Archery Game - Build on AK Embedded Base Kit</h1>
 
-<table>
-  <tr>
-    <td align="center"><img src="resources/images/board/archery_game_programming.png" alt="EPCB Archery Game" width="100%"/></td>
-  </tr>
-</table>
-
 # Gameplay Demo
 
 <div align="center">
