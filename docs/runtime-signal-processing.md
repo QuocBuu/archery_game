@@ -42,36 +42,6 @@ Main runtime flow:
 #### 1. Game Start
 
 ```mermaid
-%%{
-  init: {
-    "theme": "base",
-    "themeVariables": {
-      "background": "#ffffff",
-      "primaryColor": "#ffffff",
-      "primaryTextColor": "#000000",
-      "primaryBorderColor": "#000000",
-      "secondaryColor": "#ffffff",
-      "secondaryTextColor": "#000000",
-      "secondaryBorderColor": "#000000",
-      "tertiaryColor": "#fff8b3",
-      "lineColor": "#000000",
-      "textColor": "#000000",
-      "noteBkgColor": "#ffe66d",
-      "noteTextColor": "#000000",
-      "noteBorderColor": "#000000",
-      "actorBorder": "#000000",
-      "actorBkg": "#ffffff",
-      "actorTextColor": "#000000",
-      "labelBoxBkgColor": "#ffffff",
-      "labelBoxBorderColor": "#000000",
-      "labelTextColor": "#000000",
-      "signalColor": "#000000",
-      "signalTextColor": "#000000",
-      "activationBorderColor": "#000000",
-      "activationBkgColor": "#f5f5f5"
-    }
-  }
-}%%
 sequenceDiagram
     autonumber
 
@@ -169,36 +139,6 @@ sequenceDiagram
 #### 2. Game Playing
 
 ```mermaid
-%%{
-  init: {
-    "theme": "base",
-    "themeVariables": {
-      "background": "#ffffff",
-      "primaryColor": "#ffffff",
-      "primaryTextColor": "#000000",
-      "primaryBorderColor": "#000000",
-      "secondaryColor": "#ffffff",
-      "secondaryTextColor": "#000000",
-      "secondaryBorderColor": "#000000",
-      "tertiaryColor": "#fff8b3",
-      "lineColor": "#000000",
-      "textColor": "#000000",
-      "noteBkgColor": "#ffe66d",
-      "noteTextColor": "#000000",
-      "noteBorderColor": "#000000",
-      "actorBorder": "#000000",
-      "actorBkg": "#ffffff",
-      "actorTextColor": "#000000",
-      "labelBoxBkgColor": "#ffffff",
-      "labelBoxBorderColor": "#000000",
-      "labelTextColor": "#000000",
-      "signalColor": "#000000",
-      "signalTextColor": "#000000",
-      "activationBorderColor": "#000000",
-      "activationBkgColor": "#f5f5f5"
-    }
-  }
-}%%
 sequenceDiagram
     autonumber
 
@@ -363,36 +303,6 @@ sequenceDiagram
 #### 3. Game Reset
 
 ```mermaid
-%%{
-  init: {
-    "theme": "base",
-    "themeVariables": {
-      "background": "#ffffff",
-      "primaryColor": "#ffffff",
-      "primaryTextColor": "#000000",
-      "primaryBorderColor": "#000000",
-      "secondaryColor": "#ffffff",
-      "secondaryTextColor": "#000000",
-      "secondaryBorderColor": "#000000",
-      "tertiaryColor": "#fff8b3",
-      "lineColor": "#000000",
-      "textColor": "#000000",
-      "noteBkgColor": "#ffe66d",
-      "noteTextColor": "#000000",
-      "noteBorderColor": "#000000",
-      "actorBorder": "#000000",
-      "actorBkg": "#ffffff",
-      "actorTextColor": "#000000",
-      "labelBoxBkgColor": "#ffffff",
-      "labelBoxBorderColor": "#000000",
-      "labelTextColor": "#000000",
-      "signalColor": "#000000",
-      "signalTextColor": "#000000",
-      "activationBorderColor": "#000000",
-      "activationBkgColor": "#f5f5f5"
-    }
-  }
-}%%
 sequenceDiagram
     autonumber
 
