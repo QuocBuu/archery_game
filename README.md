@@ -1,12 +1,11 @@
-<h1 align="center">Archery Game - Build on AK Embedded Base Kit</h1>
-
-# Gameplay Demo
+# Archery Game - Build on AK Embedded Base Kit
+## Gameplay Demo
 
 <div align="center">
     <video src="https://github.com/ak-embedded-software/archery-game/assets/54855481/d493703c-bf5b-4fd2-ae04-b86784a01231" alt="epcb archery game" height=200/>
 </div>
 
-# Documentation
+## Documentation
 
 | File | Description |
 |---|---|
@@ -17,11 +16,11 @@
 | [docs/display-design.md](docs/display-design.md) | Display design notes for screen layout, bitmap assets, rendering flow, and screen transitions. |
 | [docs/buzzer-audio.md](docs/buzzer-audio.md) | Buzzer and audio behavior notes for sound effects, silent mode, playback timing, and related APIs. |
 
-# Introduction
+## Introduction
 
 The Archery game is a game running on the AK Embedded Base Kit. It is built to help embedded programming enthusiasts learn and practice event-driven programming. During the development of the archery game, you will learn more about designing and applying UML, Tasks, Signals, Timers, Messages, State-machines,...
 
-## I. Hardware
+### I. Hardware
 
 <table align="center">
   <tr>
@@ -73,7 +72,7 @@ Flash Partitions Layout
 </table>
 <p align="center"><strong><em>Figure 2:</em></strong> Board view Top + Bottom </p>
 
-## II. Game Description and Objects
+### II. Game Description and Objects
 The following description of the **“Archery game”**, explains how to play and the game's processing mechanism. This document is used for reference in designing and developing the game later.
 
 <table align="center">
@@ -96,7 +95,7 @@ The game starts with the **Menu game** screen with the following options:
 </table>
 <p align="center"><strong><em>Figure 3:</em></strong> Game play screen and objects</p>
 
-### Objects in the Game:
+#### Objects in the Game:
 |Object Name|Description|
 |---|---|
 |**Archery**|Move up/down to select the position to shoot the arrow|
@@ -107,12 +106,12 @@ The game starts with the **Menu game** screen with the following options:
 
 > **Note:** For detailed object runtime sequences, see [Game Object Sequences](docs/game-object-sequences.md).
 
-## III. How to Play:
+### III. How to Play:
 - In this game, you will control the Archery, move **up/down** with the **[Up]/[Down]** buttons, to select the position to **shoot** the Arrow.
 - When pressing the **[Mode]** button, the Arrow will be shot, aiming to destroy the incoming Meteoroids.
 - The goal of the game is to get as many points as possible, the game will end when a Meteoroid touches the Border.
 
-### Game Mechanics:
+#### Game Mechanics:
 - **Scoring:** Points are calculated by the number of Meteoroids destroyed. Each destroyed Meteoroid corresponds to 10 points. The accumulated score will be displayed in the bottom right corner of the screen.
 - **Difficulty:** Every time 200 points are accumulated, the Meteoroid's flying speed will increase by one level. The initial difficulty can be set in the **Setting** section.
 - **Arrow Limit:** When shooting, the number of available Arrows will decrease corresponding to the number of flying Arrows, if the available Arrows decrease to "0", you cannot shoot and there will be a warning sound. The number of available Arrows will be restored when a Meteoroid is destroyed or the Arrow flies off the screen. The number of Arrows is displayed in the bottom left corner of the screen and can be changed in the **Setting**.
@@ -139,7 +138,7 @@ The game starts with the **Menu game** screen with the following options:
 </table>
 <p align="center"><strong><em>Figure 6:</em></strong> Game_over screen 2</p>
 
-## IV. Basic Game Sequence Logic
+### IV. Basic Game Sequence Logic
 
 > **Note:** For a more detailed sequence flow, see [Runtime Signal Processing](docs/runtime-signal-processing.md).
 
@@ -150,7 +149,7 @@ The game starts with the **Menu game** screen with the following options:
 </table>
 <p align="center"><strong><em>Figure 4:</em></strong> Basic game sequence logic</p>
 
-# Contact & Support
+## Contact & Support
 <p style="font-size: 20px;"><strong>Phan Quoc Buu</strong> - Embedded Software Engineer</p>
 
 ``` Note
