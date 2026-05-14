@@ -6,7 +6,8 @@
   </tr>
 </table>
 
-<h1 align="center">Gameplay Demo</h1>
+# Gameplay Demo
+
 <div align="center">
     <video src="https://github.com/ak-embedded-software/archery-game/assets/54855481/d493703c-bf5b-4fd2-ae04-b86784a01231" alt="epcb archery game" height=200/>
 </div>
