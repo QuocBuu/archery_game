@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AK Base - Oled (128*64) simulator</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #111315;
+      color: #f4f7f8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #111315;
+    }
+
+    main {
+      width: min(100%, 760px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 24px 18px;
+      display: grid;
+      align-content: center;
+      gap: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 650;
+      letter-spacing: 0;
+      text-align: center;
+    }
+
+    #status {
+      display: none;
+    }
+
+    .screen-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+    }
+
+    canvas {
+      width: min(100%, 512px);
+      aspect-ratio: 2 / 1;
+      height: auto;
+      image-rendering: pixelated;
+      background: #000;
+      border: 1px solid #334044;
+      border-radius: 4px;
+      box-shadow: 0 12px 42px rgba(0, 0, 0, 0.34);
+    }
+
+    canvas:focus-visible {
+      outline: 2px solid #6fc6ff;
+      outline-offset: 3px;
+    }
+
+.controls {
+      width: min(100%, 512px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.35fr;
+      gap: 10px;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .sim-button {
+      min-height: 58px;
+      border: 1px solid #3e494c;
+      border-radius: 6px;
+      background: #202729;
+      color: #f5f8f9;
+      font: inherit;
+      letter-spacing: 0;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      gap: 3px;
+      padding: 8px 6px;
+    }
+
+    .sim-button:hover {
+      border-color: #657277;
+      background: #262e31;
+    }
+
+    .sim-button:active,
+    .sim-button.is-pressed {
+      border-color: #8bd36d;
+      background: #244128;
+      color: #f7fff3;
+      transform: translateY(1px);
+    }
+
+    .sim-button.mode {
+      border-color: #5f6044;
+      background: #2e2b1d;
+    }
+
+    .sim-button.mode:hover {
+      border-color: #87875d;
+      background: #363321;
+    }
+
+    .sim-button.mode:active,
+    .sim-button.mode.is-pressed {
+      border-color: #e4c45d;
+      background: #4b3c15;
+    }
+
+    .button-name {
+      font-size: 15px;
+      font-weight: 750;
+      line-height: 1;
+    }
+
+@media (max-width: 560px) {
+      main {
+        padding: 14px 12px 18px;
+        align-content: start;
+      }
+
+      .controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .sim-button.mode {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div id="status" aria-hidden="true"></div>
+    <h1>AK Base - Oled (128*64) simulator</h1>
+
+    <div class="screen-wrap">
+      <canvas id="canvas" width="512" height="256" oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
+    </div>
+
+    <div class="controls" aria-label="Simulator controls">
+      <button class="sim-button" type="button" data-button="2" data-code="ArrowUp">
+        <span class="button-name">[UP]</span>
+        <span class="button-shortcut">(J or ↑)</span>
+      </button>
+      <button class="sim-button" type="button" data-button="3" data-code="ArrowDown">
+        <span class="button-name">[DOWN]</span>
+        <span class="button-shortcut">(K or ↓)</span>
+      </button>
+      <button class="sim-button mode" type="button" data-button="1" data-code="Space">
+        <span class="button-name">[MODE]</span>
+        <span class="button-shortcut">(Space or Enter)</span>
+      </button>
+    </div>
+  </main>
+
+  <script>
+    var canvas = document.getElementById('canvas');
+    var statusEl = document.getElementById('status');
+    var runtimeReady = false;
+    var controls = [];
+
+    function setStatus(text) {
+      statusEl.textContent = text || 'Ready';
+    }
+
+    function dispatchKey(code, isPressed) {
+      var key = code === 'Space' ? ' ' : code.replace('Arrow', '');
+      var event = new KeyboardEvent(isPressed ? 'keydown' : 'keyup', {
+        key: key,
+        code: code,
+        bubbles: true,
+        cancelable: true
+      });
+      canvas.dispatchEvent(event);
+      window.dispatchEvent(event);
+    }
+
+    function setSimButton(buttonId, isPressed, code) {
+      canvas.focus();
+      if (runtimeReady && Module.ccall) {
+        Module.ccall('sim_web_button_set', 'void', ['number', 'number'], [buttonId, isPressed ? 1 : 0]);
+      }
+      else {
+        dispatchKey(code, isPressed);
+      }
+    }
+
+    function bindButton(button) {
+      var buttonId = Number(button.dataset.button);
+      var code = button.dataset.code;
+      var pressed = false;
+
+      function setPressed(value) {
+        if (pressed === value) {
+          return;
+        }
+        pressed = value;
+        button.classList.toggle('is-pressed', value);
+        setSimButton(buttonId, value, code);
+      }
+
+      button.addEventListener('pointerdown', function(event) {
+        event.preventDefault();
+        button.setPointerCapture(event.pointerId);
+        setPressed(true);
+      });
+      button.addEventListener('pointerup', function(event) {
+        event.preventDefault();
+        setPressed(false);
+      });
+      button.addEventListener('pointercancel', function() {
+        setPressed(false);
+      });
+      button.addEventListener('lostpointercapture', function() {
+        setPressed(false);
+      });
+      button.addEventListener('pointerleave', function(event) {
+        if (event.pointerType === 'mouse') {
+          setPressed(false);
+        }
+      });
+
+      controls.push({ setPressed: setPressed });
+    }
+
+    function releaseControls() {
+      controls.forEach(function(control) {
+        control.setPressed(false);
+      });
+    }
+
+    document.querySelectorAll('.sim-button').forEach(bindButton);
+
+    window.addEventListener('keydown', function(event) {
+      if (['ArrowUp', 'ArrowDown', 'Space'].indexOf(event.code) !== -1) {
+        event.preventDefault();
+      }
+    }, { passive: false });
+
+    window.addEventListener('pointerdown', function() {
+      canvas.focus();
+    });
+
+    window.addEventListener('blur', releaseControls);
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        releaseControls();
+      }
+    });
+
+    var Module = {
+      canvas: canvas,
+      print: function(text) {
+        console.log(text);
+      },
+      printErr: function(text) {
+        console.error(text);
+      },
+      setStatus: setStatus,
+      onRuntimeInitialized: function() {
+        runtimeReady = true;
+        setStatus('Ready');
+        canvas.focus();
+      }
+    };
+
+    window.onerror = function(message) {
+      setStatus('Error');
+      console.error(message);
+    };
+  </script>
+  {{{ SCRIPT }}}
+</body>
+</html>

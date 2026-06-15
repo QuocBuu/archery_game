@@ -252,6 +252,9 @@ help:
 	$(Print) "[make debug gdb=ddd] gdb debug using ddd"
 	$(Print) "[make debug] gdb debug"
 	$(Print) "[make clean] clean build project folder"
+	$(Print) "[make sim] build and run SDL native simulator"
+	$(Print) "[make sim-native] build SDL native simulator"
+	$(Print) "[make sim-native-run] build and run SDL native simulator"
 	$(Print) "[make info] print SOC, flash and RAM usage"
 	$(Print) "[make asm] generate asm file"
 	$(Print) "[make sym] list symbol from objects file"
@@ -288,6 +291,27 @@ endif
 clean:
 	$(Print) CLEAN $(OBJECTS_DIR) folder
 	@rm -rf $(OBJECTS_DIR)
+
+.PHONY: sim
+sim:
+	$(Print) RUN SDL native simulator
+	@$(MAKE) --no-print-directory -C simulator run
+
+.PHONY: sim-debug
+sim-debug:
+	$(Print) RUN source simulator debug capture
+	@$(MAKE) --no-print-directory all || echo "Firmware build failed; running source simulator capture with current source state"
+	@$(MAKE) --no-print-directory -C sim source-debug DEBUG_DIR=debug-captures
+
+.PHONY: sim-native
+sim-native:
+	$(Print) BUILD SDL native simulator
+	@$(MAKE) --no-print-directory -C simulator all
+
+.PHONY: sim-native-run
+sim-native-run:
+	$(Print) RUN SDL native simulator
+	@$(MAKE) --no-print-directory -C simulator run
 
 .PHONY: info
 info: $(TARGET)
