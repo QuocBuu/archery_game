@@ -114,6 +114,7 @@ void msg_dec_ref_count(ak_msg_t* msg) {
 }
 
 void* ak_malloc(size_t size) {
+#if !defined(SIMULATOR)
 	extern uint32_t __heap_end__;
 	static uint8_t* ak_heap = NULL;
 
@@ -122,14 +123,15 @@ void* ak_malloc(size_t size) {
 			FATAL("ak_malloc", 0x01);
 		}
 	}
+#endif
 
-	ak_heap = malloc(size);
+	uint8_t* ptr = malloc(size);
 
-	if (ak_heap == NULL) {
+	if (ptr == NULL) {
 		FATAL("ak_malloc", 0x02);
 	}
 
-	return ak_heap;
+	return ptr;
 }
 
 void ak_free(void* ptr) {
