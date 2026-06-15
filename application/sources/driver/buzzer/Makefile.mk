@@ -1,7 +1,7 @@
-CFLAGS += -I./sources/driver/buzzer
-CPPFLAGS += -I./sources/driver/buzzer
+CFLAGS += -I$(SRC_ROOT)/driver/buzzer
+CPPFLAGS += -I$(SRC_ROOT)/driver/buzzer
 
-VPATH += sources/driver/buzzer
+VPATH += $(SRC_ROOT)/driver/buzzer
 
-SOURCES += sources/driver/buzzer/buzzer.c
-SOURCES += sources/driver/buzzer/buzzer_music.c
+SOURCES += $(SRC_ROOT)/driver/buzzer/buzzer.c
+SOURCES += $(SRC_ROOT)/driver/buzzer/buzzer_music.c

@@ -149,6 +149,22 @@ The game starts with the **Menu game** screen with the following options:
 </table>
 <p align="center"><strong><em>Figure 4:</em></strong> Basic game sequence logic</p>
 
+### V. Simulator
+
+Try the game directly in your browser — no hardware required:
+
+**[▶ Play Web Simulator](https://quocbuu.github.io/archery_game/)**
+
+Or run it locally on Linux:
+
+```bash
+cd simulator
+make init   # check dependencies
+make run    # build and launch
+```
+
+See [simulator/README.md](simulator/README.md) for full build instructions (native SDL2 + WebAssembly).
+
 ## Contact & Support
 <p style="font-size: 20px;"><strong>Phan Quoc Buu</strong> - Embedded Software Engineer</p>
 

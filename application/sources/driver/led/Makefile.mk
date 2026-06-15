@@ -1,6 +1,6 @@
-CFLAGS += -I./sources/driver/led
-CPPFLAGS += -I./sources/driver/led
+CFLAGS += -I$(SRC_ROOT)/driver/led
+CPPFLAGS += -I$(SRC_ROOT)/driver/led
 
-VPATH += sources/driver/led
+VPATH += $(SRC_ROOT)/driver/led
 
-SOURCES += sources/driver/led/led.c
+SOURCES += $(SRC_ROOT)/driver/led/led.c

@@ -1,6 +1,6 @@
-CFLAGS += -I./sources/driver/flash
-CPPFLAGS += -I./sources/driver/flash
+CFLAGS += -I$(SRC_ROOT)/driver/flash
+CPPFLAGS += -I$(SRC_ROOT)/driver/flash
 
-VPATH += sources/driver/flash
+VPATH += $(SRC_ROOT)/driver/flash
 
-SOURCES += sources/driver/flash/flash.c
+SOURCES += $(SRC_ROOT)/driver/flash/flash.c

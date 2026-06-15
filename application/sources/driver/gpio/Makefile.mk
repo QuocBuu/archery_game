@@ -1,6 +1,6 @@
-CFLAGS += -I./sources/driver/gpio
-CPPFLAGS += -I./sources/driver/gpio
+CFLAGS += -I$(SRC_ROOT)/driver/gpio
+CPPFLAGS += -I$(SRC_ROOT)/driver/gpio
 
-VPATH += sources/driver/gpio
+VPATH += $(SRC_ROOT)/driver/gpio
 
-SOURCES += sources/driver/gpio/gpio_output.c
+SOURCES += $(SRC_ROOT)/driver/gpio/gpio_output.c

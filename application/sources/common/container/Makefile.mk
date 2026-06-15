@@ -1,8 +1,8 @@
-CFLAGS		+= -I./sources/common/container
-CPPFLAGS	+= -I./sources/common/container
+CFLAGS		+= -I$(SRC_ROOT)/common/container
+CPPFLAGS	+= -I$(SRC_ROOT)/common/container
 
-VPATH += sources/common/container
+VPATH += $(SRC_ROOT)/common/container
 
-SOURCES += sources/common/container/log_queue.c
-SOURCES += sources/common/container/fifo.c
-SOURCES += sources/common/container/ring_buffer.c
+SOURCES += $(SRC_ROOT)/common/container/log_queue.c
+SOURCES += $(SRC_ROOT)/common/container/fifo.c
+SOURCES += $(SRC_ROOT)/common/container/ring_buffer.c

@@ -28,10 +28,6 @@ extern "C" {
 uint32_t _start_boot_share_data_flash = 0;
 uint32_t __heap_end__ = 0xFFFFFFFFu;
 
-int task_run_step(void) {
-	return 0;
-}
-
 void sim_platform_init(void) {
 	memset(eeprom_data, 0xFF, sizeof(eeprom_data));
 	memset(flash_data, 0xFF, sizeof(flash_data));

@@ -56,29 +56,33 @@ IRQ_DEBUG_OPTION = -UAK_IO_IRQ_ANALYZER
 # Interface compile option.
 IF_LINK_OPTION = -DIF_LINK_UART_EN
 
+# Root of shared sources — override to use from outside application/
+SRC_ROOT = sources
+
 # Include sources file
-include sources/ak/Makefile.mk
-include sources/app/Makefile.mk
-include sources/common/Makefile.mk
-include sources/driver/Makefile.mk
-include sources/sys/Makefile.mk
-include sources/networks/Makefile.mk
-include sources/platform/stm32l/Makefile.mk
+include $(SRC_ROOT)/ak/Makefile.mk
+include $(SRC_ROOT)/app/Makefile.mk
+include $(SRC_ROOT)/common/Makefile.mk
+include $(SRC_ROOT)/driver/Makefile.mk
+include $(SRC_ROOT)/sys/Makefile.mk
+include $(SRC_ROOT)/networks/Makefile.mk
+include $(SRC_ROOT)/platform/stm32l/Makefile.mk
 
 OBJECTS_DIR = build_$(NAME_MODULE)
+OBJ_DIR     = $(OBJECTS_DIR)/objects
 TARGET = $(OBJECTS_DIR)/$(NAME_MODULE).axf
 
 SOURCES		+=
 SOURCES_	 = $(shell find $(SOURCES) -type f -printf "%f\n")
-OBJECTS		+= $(patsubst %.c, $(OBJECTS_DIR)/%.o, $(SOURCES_))
+OBJECTS		+= $(patsubst %.c, $(OBJ_DIR)/%.o, $(SOURCES_))
 
 SOURCES_CPP	+=
 SOURCES_CPP_	 = $(shell find $(SOURCES_CPP) -type f -printf "%f\n")
-OBJECTS		+= $(patsubst %.cpp, $(OBJECTS_DIR)/%.o, $(SOURCES_CPP_))
+OBJECTS		+= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SOURCES_CPP_))
 
 SOURCES_ASM	+=
 SOURCES_ASM_	 = $(shell find $(SOURCES_ASM) -type f -printf "%f\n")
-OBJECTS		+= $(patsubst %.s, $(OBJECTS_DIR)/%.o, $(SOURCES_ASM_))
+OBJECTS		+= $(patsubst %.s, $(OBJ_DIR)/%.o, $(SOURCES_ASM_))
 
 LIBC		= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a
 LIBM		= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a
@@ -219,7 +223,7 @@ all: create $(TARGET)
 
 create:
 	$(Print) CREATE $(OBJECTS_DIR) folder
-	@mkdir -p $(OBJECTS_DIR)
+	@mkdir -p $(OBJ_DIR)
 
 $(TARGET): $(OBJECTS) $(LIBC) $(LIBM) $(LIBSTDCPP_NANO) $(LIBGCC) $(LIBGCOV) $(LIBFPU) $(LIBRDPMON)
 	$(Print) LD $@
@@ -230,15 +234,15 @@ $(TARGET): $(OBJECTS) $(LIBC) $(LIBM) $(LIBSTDCPP_NANO) $(LIBGCC) $(LIBGCOV) $(L
 	@$(OBJCOPY) -O binary $(@) $(@:.axf=.elf)
 	@$(ARM_SIZE) $(TARGET)
 
-$(OBJECTS_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: %.c
 	$(Print) CC $@
 	@$(CC) $(CFLAGS) -o $@ $<
 
-$(OBJECTS_DIR)/%.o: %.cpp
+$(OBJ_DIR)/%.o: %.cpp
 	$(Print) CXX $@
 	@$(CPP) $(CPPFLAGS) -o $@ $<
 
-$(OBJECTS_DIR)/%.o: %.s
+$(OBJ_DIR)/%.o: %.s
 	$(Print) AS $@
 	@$(AS) $(CFLAGS) -o $@ $<
 
@@ -252,9 +256,6 @@ help:
 	$(Print) "[make debug gdb=ddd] gdb debug using ddd"
 	$(Print) "[make debug] gdb debug"
 	$(Print) "[make clean] clean build project folder"
-	$(Print) "[make sim] build and run SDL native simulator"
-	$(Print) "[make sim-native] build SDL native simulator"
-	$(Print) "[make sim-native-run] build and run SDL native simulator"
 	$(Print) "[make info] print SOC, flash and RAM usage"
 	$(Print) "[make asm] generate asm file"
 	$(Print) "[make sym] list symbol from objects file"
@@ -292,27 +293,6 @@ clean:
 	$(Print) CLEAN $(OBJECTS_DIR) folder
 	@rm -rf $(OBJECTS_DIR)
 
-.PHONY: sim
-sim:
-	$(Print) RUN SDL native simulator
-	@$(MAKE) --no-print-directory -C simulator run
-
-.PHONY: sim-debug
-sim-debug:
-	$(Print) RUN source simulator debug capture
-	@$(MAKE) --no-print-directory all || echo "Firmware build failed; running source simulator capture with current source state"
-	@$(MAKE) --no-print-directory -C sim source-debug DEBUG_DIR=debug-captures
-
-.PHONY: sim-native
-sim-native:
-	$(Print) BUILD SDL native simulator
-	@$(MAKE) --no-print-directory -C simulator all
-
-.PHONY: sim-native-run
-sim-native-run:
-	$(Print) RUN SDL native simulator
-	@$(MAKE) --no-print-directory -C simulator run
-
 .PHONY: info
 info: $(TARGET)
 	@echo "Memory usage info for $(TARGET):"
@@ -326,3 +306,4 @@ asm: $(TARGET)
 sym: $(TARGET)
 	$(Print) export object name $(<:.axf=.sym)
 	$(OBJNM) --size-sort --print-size $(<) >> $(<:.axf=.sym)
+

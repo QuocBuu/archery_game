@@ -1,8 +1,8 @@
-include sources/driver/Adafruit_oled_drv/Makefile.mk
-include sources/driver/button/Makefile.mk
-include sources/driver/eeprom/Makefile.mk
-include sources/driver/flash/Makefile.mk
-include sources/driver/led/Makefile.mk
-include sources/driver/AsyncDelay/Makefile.mk
-include sources/driver/gpio/Makefile.mk
-include sources/driver/buzzer/Makefile.mk
+include $(SRC_ROOT)/driver/Adafruit_oled_drv/Makefile.mk
+include $(SRC_ROOT)/driver/button/Makefile.mk
+include $(SRC_ROOT)/driver/eeprom/Makefile.mk
+include $(SRC_ROOT)/driver/flash/Makefile.mk
+include $(SRC_ROOT)/driver/led/Makefile.mk
+include $(SRC_ROOT)/driver/AsyncDelay/Makefile.mk
+include $(SRC_ROOT)/driver/gpio/Makefile.mk
+include $(SRC_ROOT)/driver/buzzer/Makefile.mk

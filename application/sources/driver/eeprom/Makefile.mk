@@ -1,6 +1,6 @@
-CFLAGS += -I./sources/driver/eeprom
-CPPFLAGS += -I./sources/driver/eeprom
+CFLAGS += -I$(SRC_ROOT)/driver/eeprom
+CPPFLAGS += -I$(SRC_ROOT)/driver/eeprom
 
-VPATH += sources/driver/eeprom
+VPATH += $(SRC_ROOT)/driver/eeprom
 
-SOURCES_CPP += sources/driver/eeprom/eeprom.cpp
+SOURCES_CPP += $(SRC_ROOT)/driver/eeprom/eeprom.cpp

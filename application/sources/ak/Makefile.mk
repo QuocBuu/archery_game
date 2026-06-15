@@ -1,12 +1,12 @@
-include sources/ak/ak.cfg.mk
+include $(SRC_ROOT)/ak/ak.cfg.mk
 
-CFLAGS += -I./sources/ak/inc
-CPPFLAGS += -I./sources/ak/inc
+CFLAGS += -I$(SRC_ROOT)/ak/inc
+CPPFLAGS += -I$(SRC_ROOT)/ak/inc
 
-VPATH += sources/ak/src
+VPATH += $(SRC_ROOT)/ak/src
 
-SOURCES += sources/ak/src/fsm.c
-SOURCES += sources/ak/src/tsm.c
-SOURCES += sources/ak/src/task.c
-SOURCES += sources/ak/src/timer.c
-SOURCES += sources/ak/src/message.c
+SOURCES += $(SRC_ROOT)/ak/src/fsm.c
+SOURCES += $(SRC_ROOT)/ak/src/tsm.c
+SOURCES += $(SRC_ROOT)/ak/src/task.c
+SOURCES += $(SRC_ROOT)/ak/src/timer.c
+SOURCES += $(SRC_ROOT)/ak/src/message.c

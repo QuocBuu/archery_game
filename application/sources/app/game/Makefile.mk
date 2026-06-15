@@ -1,1 +1,1 @@
-include sources/app/game/archery_game/Makefile.mk
+include $(SRC_ROOT)/app/game/archery_game/Makefile.mk
