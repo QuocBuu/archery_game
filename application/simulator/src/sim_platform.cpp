@@ -28,11 +28,7 @@ extern "C" {
 uint32_t _start_boot_share_data_flash = 0;
 uint32_t __heap_end__ = 0xFFFFFFFFu;
 
-/* Forward declaration - implemented in task management module */
-extern void task_sheduler(void);
-
 int task_run_step(void) {
-	task_sheduler();
 	return 0;
 }
 
