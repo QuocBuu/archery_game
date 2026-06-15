@@ -2,6 +2,8 @@ name: Deploy Web Simulator
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'docs/simulator/**'
   workflow_dispatch:
