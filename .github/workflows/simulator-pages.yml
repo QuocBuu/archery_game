@@ -1,12 +1,7 @@
 name: Deploy Web Simulator
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "docs/**"
-      - ".github/workflows/simulator-pages.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
