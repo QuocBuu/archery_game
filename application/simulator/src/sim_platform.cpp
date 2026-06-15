@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern "C" int task_run_step(void);
 extern "C" void sys_irq_timer_10ms(void);
 
 static uint8_t eeprom_data[EEPROM_MAX_SIZE];
@@ -28,6 +27,14 @@ extern "C" {
 
 uint32_t _start_boot_share_data_flash = 0;
 uint32_t __heap_end__ = 0xFFFFFFFFu;
+
+/* Forward declaration - implemented in task management module */
+extern void task_sheduler(void);
+
+int task_run_step(void) {
+	task_sheduler();
+	return 0;
+}
 
 void sim_platform_init(void) {
 	memset(eeprom_data, 0xFF, sizeof(eeprom_data));
