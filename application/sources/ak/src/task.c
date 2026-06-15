@@ -278,7 +278,13 @@ int task_init() {
 	return 0;
 }
 
-int task_run() {
+static void task_run_init_once() {
+	static uint8_t initialized = 0;
+	if (initialized) {
+		return;
+	}
+	initialized = 1;
+
 	/* init active object log queue */
 #if defined(AK_TASK_OBJ_LOG_ENABLE)
 	log_queue_init(&log_task_dbg_object_queue \
@@ -300,11 +306,28 @@ int task_run() {
 #endif
 
 	SYS_PRINT("[task_run] Active Objects is ready\n\n");
+}
 
+#if defined(SIMULATOR)
+int task_run_step() {
+	task_run_init_once();
+	task_sheduler();
+	task_polling_run();
+	return 0;
+}
+#endif
+
+int task_run() {
+	task_run_init_once();
+
+#if defined(SIMULATOR)
+	return 0;
+#else
 	for (;;) {
 		task_sheduler();
 		task_polling_run();
 	}
+#endif
 }
 
 void task_polling_set_ability(task_id_t task_polling_id, uint8_t ability) {
