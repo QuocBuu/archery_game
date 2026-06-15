@@ -1,1 +1,1 @@
-CPPFLAGS += -I./sources/driver/AsyncDelay/src
+CPPFLAGS += -I$(SRC_ROOT)/driver/AsyncDelay/src

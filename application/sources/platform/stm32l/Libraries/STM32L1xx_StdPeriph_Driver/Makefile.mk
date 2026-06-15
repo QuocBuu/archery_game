@@ -1,6 +1,6 @@
-CFLAGS += -I./sources/platform/stm32l/Libraries/STM32L1xx_StdPeriph_Driver/inc
+CFLAGS += -I$(SRC_ROOT)/platform/stm32l/Libraries/STM32L1xx_StdPeriph_Driver/inc
 
-VPATH += sources/platform/stm32l/Libraries/STM32L1xx_StdPeriph_Driver/src
+VPATH += $(SRC_ROOT)/platform/stm32l/Libraries/STM32L1xx_StdPeriph_Driver/src
 
 # C source files
 SOURCES += ./sources/platform/stm32l/Libraries/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_gpio.c

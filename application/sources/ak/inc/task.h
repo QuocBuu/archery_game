@@ -66,6 +66,9 @@ extern void task_post_dynamic_msg(task_id_t des_task_id, uint8_t sig, uint8_t* d
 extern uint8_t task_remove_msg(task_id_t task_id, uint8_t sig); /* return numbers message's removed */
 extern int task_init();
 extern int task_run();
+#if defined(SIMULATOR)
+extern int task_run_step();
+#endif
 
 extern void task_polling_create(task_polling_t* task_polling_tbl);
 extern void task_polling_set_ability(task_id_t task_polling_id, uint8_t ability);

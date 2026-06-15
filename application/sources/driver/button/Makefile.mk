@@ -1,6 +1,6 @@
-CFLAGS += -I./sources/driver/button
-CPPFLAGS += -I./sources/driver/button
+CFLAGS += -I$(SRC_ROOT)/driver/button
+CPPFLAGS += -I$(SRC_ROOT)/driver/button
 
-VPATH += sources/driver/button
+VPATH += $(SRC_ROOT)/driver/button
 
-SOURCES += sources/driver/button/button.c
+SOURCES += $(SRC_ROOT)/driver/button/button.c

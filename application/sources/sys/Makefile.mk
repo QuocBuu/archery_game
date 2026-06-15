@@ -1,7 +1,7 @@
-CFLAGS	+= -I./sources/sys
-CPPFLAGS += -I./sources/sys
+CFLAGS	+= -I$(SRC_ROOT)/sys
+CPPFLAGS += -I$(SRC_ROOT)/sys
 
-VPATH += sources/sys
+VPATH += $(SRC_ROOT)/sys
 
-SOURCES += sources/sys/sys_dbg.c
-SOURCES += sources/sys/sys_boot.c
+SOURCES += $(SRC_ROOT)/sys/sys_dbg.c
+SOURCES += $(SRC_ROOT)/sys/sys_boot.c
