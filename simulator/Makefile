@@ -27,6 +27,27 @@ CPP = g++
 WEB_CC  = emcc
 WEB_CPP = em++
 
+# Auto-detect emsdk if emcc not already in PATH.
+# Priority: (1) bundled submodule emsdk/, (2) ~/emsdk
+ifeq ($(shell command -v emcc 2>/dev/null),)
+  _EMSDK_SUBMODULE := $(abspath emsdk)
+  _EMSDK_HOME      := $(HOME)/emsdk
+  ifneq ($(wildcard $(_EMSDK_SUBMODULE)/upstream/emscripten/emcc),)
+    _EMSDK_DIR := $(_EMSDK_SUBMODULE)
+  else ifneq ($(wildcard $(_EMSDK_HOME)/upstream/emscripten/emcc),)
+    _EMSDK_DIR := $(_EMSDK_HOME)
+  endif
+  ifdef _EMSDK_DIR
+    export PATH    := $(_EMSDK_DIR)/upstream/emscripten:$(_EMSDK_DIR):$(PATH)
+    export EMSDK   := $(_EMSDK_DIR)
+    _EMSDK_NODE    := $(firstword $(wildcard $(_EMSDK_DIR)/node/*_64bit/bin/node))
+    ifneq ($(_EMSDK_NODE),)
+      export EMSDK_NODE := $(_EMSDK_NODE)
+      export PATH := $(dir $(_EMSDK_NODE)):$(PATH)
+    endif
+  endif
+endif
+
 include simulator.mk
 
 ##############################################################################
@@ -180,12 +201,7 @@ web-deploy: web
 
 .PHONY: init
 init:
-	$(Print) Checking build dependencies...
-	@command -v gcc    >/dev/null 2>&1 || { echo "ERROR: gcc not found";         exit 1; }
-	@command -v g++    >/dev/null 2>&1 || { echo "ERROR: g++ not found";         exit 1; }
-	@pkg-config --exists sdl2         || { echo "ERROR: libsdl2-dev not found — run: sudo apt install libsdl2-dev"; exit 1; }
-	@command -v emcc   >/dev/null 2>&1 || { echo "WARNING: emcc not found — web build unavailable (install emsdk)"; }
-	$(Print) All required dependencies are present.
+	@bash scripts/init.sh
 
 .PHONY: clean
 clean:

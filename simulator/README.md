@@ -17,8 +17,18 @@ make clean-web   # clean web build
 make clean-all   # clean everything
 ```
 
-**Dependencies** — native: `gcc`, `g++`, `libsdl2-dev`.
-Web: [emsdk](https://emscripten.org/docs/getting_started/downloads.html), then `source ~/emsdk/emsdk_env.sh` before building.
+**Dependencies** — native: `gcc`, `g++`, `pkg-config`, `libsdl2-dev`.
+
+```bash
+sudo apt install build-essential pkg-config libsdl2-dev
+```
+
+Web: [emsdk](https://emscripten.org/docs/getting_started/downloads.html) — install emsdk, then activate before building:
+
+```bash
+source ~/emsdk/emsdk_env.sh
+make web
+```
 
 **Keyboard controls:** `Up`/`J` = UP, `Down`/`K` = DOWN, `Space`/`Enter` = MODE, `Esc` = quit.
 
