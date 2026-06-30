@@ -34,7 +34,9 @@ boot_app_share_data_t boot_app_share_data;
 sys_boot_t app_sys_boot;
 
 static void update_boot_fw_info_to_share_boot();
-static void jump_to_application_before_reset_peripheral();
+static bool jump_to_application_before_reset_peripheral();
+static void uart_boot_wait_forever();
+static void request_uart_update_and_reset();
 
 /**************************************************************************
 * uart boot handler function declare
@@ -115,13 +117,7 @@ int boot_main() {
 			(app_sys_boot.fw_app_cmd.cmd		== SYS_BOOT_CMD_UPDATE_REQ	&& \
 			 app_sys_boot.fw_app_cmd.container	== SYS_BOOT_CONTAINER_DIRECTLY	&& \
 			 app_sys_boot.fw_app_cmd.io_driver	== SYS_BOOT_IO_DRIVER_UART)) {
-
-		APP_PRINT("[BOOT] uart boot started\n");
-
-		led_blink_set(&led_life, 250, 50);
-
-		while (1) {
-		}
+		uart_boot_wait_forever();
 	}
 
 	/**************************************************************************
@@ -133,7 +129,10 @@ int boot_main() {
 	if (app_sys_boot.fw_app_cmd.cmd == SYS_BOOT_CMD_NONE &&
 			app_sys_boot.current_fw_app_header.psk == FIRMWARE_PSK) {
 		APP_PRINT("[BOOT] start application\n");
-		jump_to_application_before_reset_peripheral();
+		if (jump_to_application_before_reset_peripheral() == false) {
+			APP_PRINT("[BOOT] application vector table invalid\n");
+			request_uart_update_and_reset();
+		}
 	}
 
 	/* update firmware */
@@ -242,7 +241,10 @@ int boot_main() {
 			led_off(&led_life);
 
 			APP_PRINT("[BOOT] start application\n");
-			jump_to_application_before_reset_peripheral();
+			if (jump_to_application_before_reset_peripheral() == false) {
+				APP_PRINT("[BOOT] application vector table invalid\n");
+				request_uart_update_and_reset();
+			}
 		}
 	}
 	else {
@@ -281,11 +283,42 @@ void update_boot_fw_info_to_share_boot() {
 	}
 }
 
+void uart_boot_wait_forever() {
+	APP_PRINT("[BOOT] uart boot started\n");
+
+	led_blink_set(&led_life, 250, 50);
+
+	while (1) {
+	}
+}
+
+void request_uart_update_and_reset() {
+	APP_PRINT("[BOOT] request uart update\n");
+
+	app_sys_boot.fw_app_cmd.cmd = SYS_BOOT_CMD_UPDATE_REQ;
+	app_sys_boot.fw_app_cmd.container = SYS_BOOT_CONTAINER_DIRECTLY;
+	app_sys_boot.fw_app_cmd.io_driver = SYS_BOOT_IO_DRIVER_UART;
+	app_sys_boot.fw_app_cmd.des_addr = NORMAL_START_ADDRESS;
+	app_sys_boot.fw_app_cmd.src_addr = 0;
+	sys_boot_set(&app_sys_boot);
+
+	sys_ctrl_jump_to_app_req = 0;
+	sys_ctrl_delay_ms(100);
+	sys_ctrl_reset();
+
+	while (1) {
+	}
+}
+
 /**
  * @brief jump_to_application_before_reset_peripheral
  */
-void jump_to_application_before_reset_peripheral() {
+bool jump_to_application_before_reset_peripheral() {
 	update_boot_fw_info_to_share_boot();
+
+	if (sys_ctrl_is_app_vector_table_valid() == false) {
+		return false;
+	}
 
 	sys_ctrl_jump_to_app_req = SYS_CTRL_JUMP_TO_APP_REQ;
 	sys_ctrl_reset();
@@ -296,6 +329,8 @@ void jump_to_application_before_reset_peripheral() {
 		led_life_off();
 		sys_ctrl_delay_ms(200);
 	}
+
+	return false;
 }
 
 /**
@@ -365,6 +400,7 @@ void uart_boot_cmd_update_res(void* boot_obj) {
 		 * erase application internal flash, prepare for new firmware
 		 */
 		for (uint32_t index = 0; index < page_number; index++) {
+			sys_ctrl_independent_watchdog_reset();
 			flash_erase_addr = app_sys_boot.fw_app_cmd.des_addr + (index * 256);
 			FLASH_ErasePage(flash_erase_addr);
 			memcpy(uart_boot_data_cmd_res.data, &flash_erase_addr, sizeof(uint32_t));
@@ -384,13 +420,38 @@ void uart_boot_cmd_update_res(void* boot_obj) {
  * @param boot_obj
  */
 static uint32_t transfer_fw_index = 0;
+static uint8_t transfer_fw_seq = 0;
+static uint8_t transfer_fw_last_seq = 0;
+static uint8_t transfer_fw_last_len = 0;
+static uint32_t transfer_fw_last_addr = 0;
+static bool transfer_fw_has_last = false;
 void uart_boot_cmd_transfer_fw_res(void* boot_obj) {
 	uart_boot_data_cmd_t* uart_boot_object = (uart_boot_data_cmd_t*)(((uart_boot_frame_t*)boot_obj)->data);
+
+	if (uart_boot_object->boot_cmd.cmd == UART_BOOT_CMD_CHECKSUM_FW_REQ) {
+		uart_boot_cmd_checksum_fw_res(boot_obj);
+		return;
+	}
 
 	if (uart_boot_object->boot_cmd.cmd == UART_BOOT_CMD_TRANSFER_FW_REQ) {
 		/* write firmware to internal flash */
 
 		uint32_t flash_status;
+		uint32_t flash_write_addr = app_sys_boot.fw_app_cmd.des_addr + transfer_fw_index;
+		uint8_t transfer_seq = uart_boot_object->boot_cmd.subcmd;
+		bool duplicate_transfer = false;
+
+		if (transfer_fw_has_last &&
+				transfer_seq == transfer_fw_last_seq &&
+				uart_boot_object->len == transfer_fw_last_len &&
+				memcmp((uint8_t*)transfer_fw_last_addr, (uint8_t*)(uart_boot_object->data), uart_boot_object->len) == 0) {
+			duplicate_transfer = true;
+		}
+		else if (transfer_seq != transfer_fw_seq || transfer_fw_index >= app_sys_boot.update_fw_app_header.bin_len) {
+			return;
+		}
+
+		if (duplicate_transfer == false) {
 #if 0
 		uint32_t w_index = 0;
 
@@ -410,29 +471,32 @@ void uart_boot_cmd_transfer_fw_res(void* boot_obj) {
 			}
 		}
 #else
-		flash_status = FLASH_BUSY;
+			flash_status = FLASH_BUSY;
 
-		while (flash_status != FLASH_COMPLETE) {
-			ENTRY_CRITICAL();
-			flash_status =  FLASH_ProgramHalfPage(app_sys_boot.fw_app_cmd.des_addr + transfer_fw_index, (uint32_t*)(uart_boot_object->data));
-			EXIT_CRITICAL();
+			while (flash_status != FLASH_COMPLETE) {
+				ENTRY_CRITICAL();
+				flash_status =  FLASH_ProgramHalfPage(flash_write_addr, (uint32_t*)(uart_boot_object->data));
+				EXIT_CRITICAL();
 
-			if (memcmp((uint8_t*)(app_sys_boot.fw_app_cmd.des_addr + transfer_fw_index), (uint8_t*)(uart_boot_object->data), uart_boot_object->len) != 0) {
-				flash_status = FLASH_BUSY;
-			}
+				if (memcmp((uint8_t*)flash_write_addr, (uint8_t*)(uart_boot_object->data), uart_boot_object->len) != 0) {
+					flash_status = FLASH_BUSY;
+				}
 
-			if(flash_status == FLASH_COMPLETE) {
-				sys_ctrl_independent_watchdog_reset();
-				transfer_fw_index += uart_boot_object->len;
+				if(flash_status == FLASH_COMPLETE) {
+					sys_ctrl_independent_watchdog_reset();
+					transfer_fw_last_seq = transfer_seq;
+					transfer_fw_last_len = uart_boot_object->len;
+					transfer_fw_last_addr = flash_write_addr;
+					transfer_fw_has_last = true;
+					transfer_fw_seq++;
+					transfer_fw_index += uart_boot_object->len;
+				}
+				else {
+					FLASH_ClearFlag(FLASH_FLAG_EOP|FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR |
+									FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | FLASH_FLAG_OPTVERRUSR);
+				}
 			}
-			else {
-				FLASH_ClearFlag(FLASH_FLAG_EOP|FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR |
-								FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | FLASH_FLAG_OPTVERRUSR);
-			}
-		}
 #endif
-		if (transfer_fw_index >= app_sys_boot.update_fw_app_header.bin_len) {
-			set_uart_boot_cmd_handler(uart_boot_cmd_checksum_fw_res);
 		}
 
 		/* response to host */

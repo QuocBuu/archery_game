@@ -27,6 +27,11 @@
 #include "app.h"
 
 /* Private define */
+#define SYS_CFG_FLASH_START_ADDRESS		0x08000000UL
+#define SYS_CFG_APP_FLASH_END_ADDRESS	0x08020000UL
+#define SYS_CFG_SRAM_START_ADDRESS		0x20000000UL
+#define SYS_CFG_SRAM_END_ADDRESS		0x20004000UL
+
 static uint32_t delay_coeficient = 0;
 static void xputchar(uint8_t c);
 
@@ -285,13 +290,51 @@ void sys_ctrl_get_firmware_info(firmware_header_t* header) {
 
 uint32_t sys_ctrl_jump_to_app_req;
 
+static bool sys_ctrl_app_vector_table_is_valid(uint32_t vector_table) {
+	volatile uint32_t app_stack_pointer = *(volatile uint32_t*)vector_table;
+	volatile uint32_t app_reset_handler = *(volatile uint32_t*)(vector_table + sizeof(uint32_t));
+	uint32_t app_reset_address = app_reset_handler & ~0x01UL;
+
+	if ((app_stack_pointer < SYS_CFG_SRAM_START_ADDRESS) ||
+			(app_stack_pointer > SYS_CFG_SRAM_END_ADDRESS) ||
+			((app_stack_pointer & 0x03UL) != 0)) {
+		return false;
+	}
+
+	if ((app_reset_handler & 0x01UL) == 0) {
+		return false;
+	}
+
+	if ((app_reset_address < NORMAL_START_ADDRESS) ||
+			(app_reset_address >= SYS_CFG_APP_FLASH_END_ADDRESS) ||
+			(app_reset_address < SYS_CFG_FLASH_START_ADDRESS) ||
+			((app_reset_address & 0x01UL) != 0)) {
+		return false;
+	}
+
+	if ((app_stack_pointer == 0xFFFFFFFFUL) || (app_reset_handler == 0xFFFFFFFFUL) ||
+			(app_stack_pointer == 0x00000000UL) || (app_reset_handler == 0x00000000UL)) {
+		return false;
+	}
+
+	return true;
+}
+
+bool sys_ctrl_is_app_vector_table_valid() {
+	return sys_ctrl_app_vector_table_is_valid(NORMAL_START_ADDRESS);
+}
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated"
-void sys_ctrl_jump_to_app() {
+bool sys_ctrl_jump_to_app() {
 	volatile uint32_t normal_stack_pointer	=	(uint32_t) *(volatile uint32_t*)(NORMAL_START_ADDRESS);
 	volatile uint32_t normal_jump_address	=	(uint32_t) *(volatile uint32_t*)(NORMAL_START_ADDRESS + 4);
 
 	p_jump_func jump_to_normal = (p_jump_func)normal_jump_address;
+
+	if (sys_ctrl_app_vector_table_is_valid(NORMAL_START_ADDRESS) == false) {
+		return false;
+	}
 
 	/* Disable interrupt */
 	DISABLE_INTERRUPTS();
@@ -303,5 +346,7 @@ void sys_ctrl_jump_to_app() {
 
 	/* jump to normal program */
 	jump_to_normal();
+
+	return false;
 }
 #pragma GCC diagnostic pop

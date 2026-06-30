@@ -12,6 +12,7 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "sys_boot.h"
 
@@ -58,7 +59,8 @@ extern void sys_ctrl_get_firmware_info(firmware_header_t*);
 
 extern uint8_t sys_is_power_on_reset();
 
-extern void sys_ctrl_jump_to_app();
+extern bool sys_ctrl_is_app_vector_table_valid();
+extern bool sys_ctrl_jump_to_app();
 
 #ifdef __cplusplus
 }

@@ -162,7 +162,9 @@ void reset_handler() {
 	RCC_ClearFlag();
 
 	if (sys_ctrl_jump_to_app_req == SYS_CTRL_JUMP_TO_APP_REQ) {
-		sys_ctrl_jump_to_app();
+		if (sys_ctrl_jump_to_app() == false) {
+			sys_ctrl_jump_to_app_req = 0;
+		}
 	}
 
 	/* init system */
